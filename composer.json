@@ -1,0 +1,29 @@
+{
+    "name": "adamb/lesson-price",
+    "description": "gets the price for a lesson for a given area",
+    "type": "library",
+    "license": "proprietary",
+    "require": {
+        "adamb/shopping-cart": "^1.0",
+        "adamb/salesstaff": "^1.0"
+    },
+    "authors": [
+        {
+            "name": "Adam Binnersley",
+            "email": "abinnersley@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "LessonPrice\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LessonPrice\\Tests\\": "tests/"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^7.0"
+    }
+}
