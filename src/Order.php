@@ -19,8 +19,8 @@ class Order extends \ShoppingCart\Order{
      * @param Database $db This should be an instance of the Database class
      * @param Config $config This should be an instance of the Config class
      */
-    public function __construct(Database $db, Config $config) {
-        parent::__construct($db, $config);
+    public function __construct(Database $db, Config $config, $user) {
+        parent::__construct($db, $config, $user);
         $this->product = new Product($db, $config);
     }
     
