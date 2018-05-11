@@ -9,13 +9,74 @@ use ShoppingCart\Config;
 class Product extends \ShoppingCart\Product{
     
     protected $lesson;
-    
+
     public $postcode;
     public $priceband;
+    
+    protected $numPrices = 1;
+    protected $lessonsAvailable = []; 
     
     public function __construct(Database $db, Config $config) {
         parent::__construct($db, $config);
         $this->lesson = new Lesson($db);
+    }
+    
+    /**
+     * Sets the number of prices
+     * @param int $prices This should be the number of prices based on the area covered
+     * @return $this
+     */
+    public function setNumPrices($prices){
+        if(is_numeric($prices)){
+            $this->numPrices = intval($prices);
+        }
+        return $this;
+    }
+    
+    /**
+     * Returns the number of different prices
+     * @return int
+     */
+    public function getNumPrices(){
+        return $this->numPrices;
+    }
+    
+    /**
+     * Sets the price
+     * @param string $price This should be the price band
+     * @return $this
+     */
+    public function setPrice($price){
+        $this->priceband = $price;
+        return $this;
+    }
+    
+    /**
+     * Returns the price
+     * @return string
+     */
+    public function getPrice(){
+        return $this->priceband;
+    }
+    
+    /**
+     * Sets the array of lessons available
+     * @param array $lessons This should be an array of the lessons available
+     * @return $this
+     */
+    public function setLessonsAvailable($lessons){
+        if(is_array($lessons)){
+            $this->lessonsAvailable = $lessons;
+        }
+        return $this;
+    }
+    
+    /**
+     * Returns an array of the lessons available
+     * @return array
+     */
+    public function getLessonsAvaiable(){
+        return $this->lessonsAvailable;
     }
     
     /**
@@ -57,19 +118,58 @@ class Product extends \ShoppingCart\Product{
     public function buildProduct($url, $where = []) {
         $productInfo = parent::buildProduct($url, $where);
         if(!empty($productInfo)) {
-            if($productInfo['lesson'] && !$productInfo['price']){
-                if($this->instructor->instructor['numprices'] == 1){
-                    $productInfo['priceband'] = key($this->instructor->instructor['prices']);
-                }
-                else{
-                    $productInfo['lessonBox'] = true;
-                    if($_SESSION['postcode']){
-                        $productInfo['priceband'] = $this->lesson->getPostcodeBand($_SESSION['postcode']);
-                    }
-                }
-                $productInfo['price'] = $this->getProductPrice($this->productID, $productInfo['priceband']);
+            if($productInfo['lesson'] && !$productInfo['price'] && $this->getNumPrices() == 1) {
+                $productInfo['priceband'] = $this->getPrice();
             }
+            elseif($productInfo['lesson'] && !$productInfo['price']) {
+                $productInfo['lessonBox'] = true;
+                if($_SESSION['postcode']){
+                    $productInfo['priceband'] = $this->lesson->getPostcodeBand($_SESSION['postcode']);
+                }
+            }
+            $productInfo['price'] = $this->getProductPrice($this->productID, $productInfo['priceband']);
         }
         return $productInfo;
+    }
+    
+    /**
+     * Get category information from the database
+     * @param array $where This should be an array with the values that are being searched
+     * @return array|false If the query returns any results will return the category information as an array else will return false 
+     */
+    protected function getCategoryInfo($where) {
+        $categoryInfo = parent::getCategoryInfo($where);
+        if($categoryInfo['lessons'] && $this->getNumPrices() > 1){
+            $categoryInfo['lessonBox'] = true;
+        }
+        if($categoryInfo['lessons'] && ($this->getNumPrices() == 1 || $_SESSION['postcode'])){
+            if($this->getNumPrices() == 1){
+                $categoryInfo['band'] = $this->getPrice();
+            }
+            else{
+                $categoryInfo['band'] = $this->lesson->getPostcodeBand($_SESSION['postcode']);
+            }
+        }
+        return $categoryInfo;
+    }
+    
+    /**
+     * Get all of the products in a given category based on the given parameters
+     * @param int $category_id This should be the category ID that you are getting all the products within 
+     * @param string $orderBy How the products should be ordered can be on fields such as `sales`, `price`, `views` 
+     * @param int $limit The maximum number of results to show
+     * @param int $start The start location for the database results (Used for pagination)
+     * @param boolean $activeOnly If you only want to display active product this should be set to true else should be set to false
+     * @return array|false Returns an array containing the products in a given category if any exist else will return false if none exist 
+     */
+    public function getProductsInCategory($category_id, $orderBy = 'sales', $limit = 20, $start = 0, $activeOnly = true) {
+        foreach($this->getLessonsAvaiable() as $i => $lesson){
+            $sql.= ($i >= 1 ? " OR " : "")."`products`.`lessonrelation` = '".$lesson."'";
+        }
+        $products = $this->db->query("SELECT `products`.* FROM `{$this->config->table_products}` as `products`, `{$this->config->table_product_categories}` as `category` WHERE ".($activeOnly === true ? "`products`.`active` = 1 AND " : "")."`products`.`product_id` = `category`.`product_id` AND `category`.`category_id` = ? AND (`products`.`lesson` != 1 OR (`products`.`lesson` = 1 AND (".$sql."))) ORDER BY `{$orderBy}`".($limit > 0 ? " LIMIT {$start}, {$limit}" : "").";", array($category_id));
+        foreach($products as $i => $product){
+            $products[$i] = $this->buildProduct($product['custom_url']);
+        }
+        return $products;
     }
 }
