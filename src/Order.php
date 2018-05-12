@@ -39,8 +39,8 @@ class Order extends \ShoppingCart\Order{
      */
     protected function updateTotals() {
         parent::updateTotals();
-        foreach($this->products as $productID => $quantity){
-            if($this->lesson == 0 && $this->product->isProductLesson($productID)){
+        foreach($this->products as $product){
+            if($this->lesson == 0 && $this->product->isProductLesson($product['product_id'])){
                 $this->lesson = 1;
                 $this->priceband = $this->product->priceband;
             }
