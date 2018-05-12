@@ -2,26 +2,12 @@
 
 namespace LessonPrice;
 
-use DBAL\Database;
-use ShoppingCart\Config;
-use LessonPrice\Product;
-use Staff\SalesTeam;
-
 class Order extends \ShoppingCart\Order{
         
     public $lesson = 0;
     
     private $postcode;
     private $priceband;
-    
-    /**
-     * Constructor
-     * @param Database $db This should be an instance of the Database class
-     * @param Config $config This should be an instance of the Config class
-     */
-    public function __construct(Database $db, Config $config, $user = false, $product = false) {
-        parent::__construct($db, $config, $user, $product);
-    }
     
     /**
      * Adds the order information into the database
