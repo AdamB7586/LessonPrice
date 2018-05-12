@@ -129,7 +129,7 @@ class Product extends \ShoppingCart\Product{
                     $productInfo['priceband'] = $this->lesson->getPostcodeBand($_SESSION['postcode']);
                 }
             }
-            $productInfo['price'] = $this->getProductPrice($this->productID, $productInfo['priceband']);
+            $productInfo['price'] = $this->getProductPrice($productInfo['product_id'], $productInfo['priceband']);
         }
         return $productInfo;
     }
