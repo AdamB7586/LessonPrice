@@ -20,7 +20,7 @@ class Order extends \ShoppingCart\Order{
      * @param Config $config This should be an instance of the Config class
      */
     public function __construct(Database $db, Config $config, $user = false, $product = false) {
-        parent::__construct($db, $config, $user);
+        parent::__construct($db, $config, $user, $product);
     }
     
     /**
