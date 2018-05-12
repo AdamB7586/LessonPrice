@@ -30,7 +30,8 @@ class Order extends \ShoppingCart\Order{
      * @return boolean If the order is successfully inserted will return true else returns false
      */
     protected function createOrder($additional = []) {
-        return $this->db->insert($this->config->table_basket, array_merge(array('customer_id' => $this->user->getUserID(), 'order_no' => $this->createOrderID(), 'products' => serialize($this->products), 'digital' => $this->download, 'lesson' => $this->lesson, 'postcode' => NULL, 'band' => NULL, 'subtotal' => $this->totals['subtotal'], 'discount' => $this->totals['discount'], 'total_vat' => $this->totals['vat'], 'delivery' => $this->totals['delivery'], 'cart_total' => $this->totals['total'], 'sessionid' => session_id(), 'ipaddress' => filter_input(INPUT_ENV, 'REMOTE_ADDR', FILTER_VALIDATE_IP)), $additional));
+        $this->updateTotals();
+        return $this->db->insert($this->config->table_basket, array_merge(array('customer_id' => ($this->user_id === 0 ? NULL : $this->user_id), 'order_no' => $this->createOrderID(), 'digital' => $this->has_download, 'lesson' => $this->lesson, 'postcode' => NULL, 'band' => NULL, 'subtotal' => $this->totals['subtotal'], 'discount' => $this->totals['discount'], 'total_vat' => $this->totals['vat'], 'delivery' => $this->totals['delivery'], 'cart_total' => $this->totals['total'], 'sessionid' => session_id(), 'ipaddress' => filter_input(INPUT_ENV, 'REMOTE_ADDR', FILTER_VALIDATE_IP)), $additional));
     }
     
     /**
@@ -39,8 +40,9 @@ class Order extends \ShoppingCart\Order{
      * @return boolean If the information is updated will return true else will return false
      */
     protected function updateBasket($additional = []) {
+        $this->updateTotals();
         if(count($this->products) >= 1){
-            return $this->db->update($this->config->table_basket, array('products' => serialize($this->products), 'digital' => $this->download, 'lesson' => $this->lesson, 'postcode' => NULL, 'band' => NULL, 'subtotal' => $this->totals['subtotal'], 'discount' => $this->totals['discount'], 'total_vat' => $this->totals['vat'], 'delivery' => $this->totals['delivery'], 'cart_total' => $this->totals['total']), array_merge(array('customer_id' => $this->user->getUserID(), 'sessionid' => session_id(), 'status' => 1), $additional));
+            return $this->db->update($this->config->table_basket, array('digital' => $this->has_download, 'lesson' => $this->lesson, 'postcode' => NULL, 'band' => NULL, 'subtotal' => $this->totals['subtotal'], 'discount' => $this->totals['discount'], 'total_vat' => $this->totals['vat'], 'delivery' => $this->totals['delivery'], 'cart_total' => $this->totals['total']), array_merge(array('customer_id' => ($this->user_id === 0 ? 'IS NULL' : $this->user_id), 'sessionid' => session_id(), 'status' => 1), $additional));
         }
         else{
             return $this->emptyBasket();

@@ -2,9 +2,11 @@
 namespace LessonPrice;
 
 use DBAL\Database;
+use ShoppingCart\Config;
 
 class Lesson {
-    protected static $db;
+    protected $db;
+    protected $config;
     
     public $postcode;
     public $band;
@@ -12,8 +14,9 @@ class Lesson {
     /**
      * Constructor
      */
-    public function __construct(Database $db){
-        self::$db = $db;
+    public function __construct(Database $db, Config $config){
+        $this->db = $db;
+        $this->config = $config;
     }
     
     /**
@@ -23,8 +26,8 @@ class Lesson {
      */
     public function selectPriceband($postcode){
         $this->postcode = smallPostcode($postcode);
-        $band = self::$db->select('postcodes', array('PostCode' => $this->postcode), array('Price'));
-        $this->band = self::$db->select('priceband', array('band' => strtoupper($band['Price'])));
+        $band = $this->db->select($this->config->table_postcodes, array('PostCode' => $this->postcode), array('Price'));
+        $this->band = $this->db->select($this->config->table_priceband, array('band' => strtoupper($band['Price'])));
         if($this->band){
             $this->band['lesson'] = $this->band['onehour'];
             $this->band['twohours'] = $this->band['twohour'];

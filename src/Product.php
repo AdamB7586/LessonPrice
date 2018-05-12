@@ -18,7 +18,7 @@ class Product extends \ShoppingCart\Product{
     
     public function __construct(Database $db, Config $config) {
         parent::__construct($db, $config);
-        $this->lesson = new Lesson($db);
+        $this->lesson = new Lesson($db, $config);
     }
     
     /**
