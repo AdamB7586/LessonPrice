@@ -66,8 +66,9 @@ class Lesson {
      * @return array|boolean If the band exists it will return the price band info else returns false
      */
     public function getPriceBandInfo($band){
-        $this->band = $this->db->select($this->config->table_priceband, array('band' => $band));
+        $this->band = $this->db->select($this->config->table_priceband, array('band' => strtoupper($band)));
         if(isset($this->band)){
+            $this->band['twohours'] = $this->band['twohour'];
             return $this->band;
         }
         return false;
@@ -81,37 +82,32 @@ class Lesson {
     public function selectPriceband($postcode){
         $this->postcode = smallPostcode($postcode);
         $band = $this->db->select($this->config->table_postcodes, array('PostCode' => $this->postcode), array('Price'));
-        $this->band = $this->db->select($this->config->table_priceband, array('band' => strtoupper($band['Price'])));
-        if($this->band){
-            $this->band['lesson'] = $this->band['onehour'];
-            $this->band['twohours'] = $this->band['twohour'];
-            $this->band['theoryfee'] = $this->band['theorytest'];
-            return $this->band;
-        }
-        return false;
+        return $this->getPriceBandInfo($band['Price']);
     }
     
     /**
      * Returns the price of the given lesson for the postcode given
      * @param array $relation This should be all of the lesson price information in order to work out the lesson price
-     * @param string $postcode This should be the postcode that you wish to retrieve prices for
+     * @param string $band This should be the price band that you wish to retrieve prices for
      * @return double|boolean Returns either the price if the price is not 0.00 else returns false
      */
-    public function lessonPrice($relation, $postcode){
-        if(!isset($this->band)){$this->selectPriceband($postcode);}
+    public function lessonPrice($relation, $band){
+        if(!isset($this->band)){$this->getPriceBandInfo($band);}
         $lessoninfo = $this->db->select($this->config->table_priceband_info, array('course' => $relation));
         
         $fee = 0;
-        if($lessoninfo['testincluded']){$fee = $fee + $this->band['testfee'];}
-        if($lessoninfo['theoryinclude']){$fee = $fee + $this->band['theoryfee'];}
-        if($lessoninfo['materials']){$fee = $fee + $this->band['materials'];}
+        if($lessoninfo['test']){$fee = $fee + $this->band['testfee'];}
+        if($lessoninfo['theory']){$fee = $fee + $this->band['theorytest'];}
+        if($lessoninfo['products']){$fee = $fee + $this->band['materials'];}
         if($lessoninfo['dsdvdwb']){$fee = $fee + $this->band['dsdvdwb'];}
         if($lessoninfo['dtc']){$fee = $fee + $this->band['dtc'];}
-        if($relation != 'lesson'){$price = ((($this->band['lesson'] - $this->band[$relation]) * $lessoninfo['lessonshours']) + $fee);}
-        else{$price = $this->band['lesson'];}
+        if($relation != 'onehour'){
+            $price = ((($this->band['onehour'] - $this->band[$relation]) * $lessoninfo['hours']) + $fee);
+        }
+        else{
+            $price = $this->band['onehour'];
+        }
         
-        $total = pounds($price);
-        if($total !== '0.00'){return $total;}
-        return false;
+        return $price;
     }
 }
