@@ -102,7 +102,7 @@ class Product extends \ShoppingCart\Product{
         $productInfo = $this->getProductByID($product_id);
         if($this->isProductLesson($product_id) && !$productInfo['price']){
             $price = $this->lesson->lessonPrice($productInfo['lessonrelation'], $band);
-            $this->priceband = $this->lesson->band['band'];
+            if(empty($this->priceband)){$this->priceband = $this->lesson->band['band'];}
             return Cost::priceUnits($price, $this->decimals);
         }
         else{
