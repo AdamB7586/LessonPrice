@@ -6,6 +6,8 @@ use LessonPrice\Lesson;
 use DBAL\Database;
 use ShoppingCart\Config;
 
+use ShoppingCart\Modifiers\Cost;
+
 class Product extends \ShoppingCart\Product{
     
     protected $lesson;
@@ -101,7 +103,7 @@ class Product extends \ShoppingCart\Product{
         if($this->isProductLesson($product_id) && !$productInfo['price']){
             $price = $this->lesson->lessonPrice($productInfo['lessonrelation'], $band);
             $this->priceband = $this->lesson->band['band'];
-            return $price;
+            return Cost::priceUnits($price, $this->decimals);
         }
         else{
             if(is_numeric($productInfo['sale_price'])) {return Cost::priceUnits($productInfo['sale_price'], $this->decimals);}
