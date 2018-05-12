@@ -122,9 +122,12 @@ class Product extends \ShoppingCart\Product{
     public function getProductPrice($product_id, $band = false) {
         $productInfo = $this->getProductByID($product_id);
         if($this->isProductLesson($product_id) && !$productInfo['price']) {
-            $price = $this->lesson->lessonPrice($productInfo['lessonrelation'], $band);
-            if(empty($this->priceband)) {$this->priceband = $this->lesson->band['band'];}
-            return Cost::priceUnits($price, $this->decimals);
+            if($band && !empty($band)){
+                $price = $this->lesson->lessonPrice($productInfo['lessonrelation'], $band);
+                $this->priceband = $this->lesson->band['band'];
+                return Cost::priceUnits($price, $this->decimals);
+            }
+            return false;
         }
         else{
             if(is_numeric($productInfo['sale_price'])) {return Cost::priceUnits($productInfo['sale_price'], $this->decimals);}
