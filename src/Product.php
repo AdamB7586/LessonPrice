@@ -92,20 +92,20 @@ class Product extends \ShoppingCart\Product{
     
     /**
      * Gets the price of any product based on the given product ID
-     * @param int $productID This should be the product id of the item you wish to get the price for
+     * @param int $product_id This should be the product id of the item you wish to get the price for
      * @param string $band If the product you are wanting the price for is a lesson then the band needs to be set as the one you are getting the price for
      * @return double Returns the price of the item
      */
-    public function getProductPrice($productID, $band = false){
-        $this->getProductByID($productID);
-        if($this->isProductLesson($productID) && !$this->productInfo['price']){
-            $price = $this->lesson->lessonPrice($this->productInfo['lessonrelation'], $band);
+    public function getProductPrice($product_id, $band = false){
+        $productInfo = $this->getProductByID($product_id);
+        if($this->isProductLesson($product_id) && !$productInfo['price']){
+            $price = $this->lesson->lessonPrice($productInfo['lessonrelation'], $band);
             $this->priceband = $this->lesson->band['band'];
             return $price;
         }
         else{
-            if(!empty($this->productInfo['newprice'])){return $this->productInfo['newprice'];}
-            else{return $this->productInfo['price'];}
+            if(is_numeric($productInfo['sale_price'])) {return Cost::priceUnits($productInfo['sale_price'], $this->decimals);}
+            return Cost::priceUnits($productInfo['price'], $this->decimals);
         }
     }
     
