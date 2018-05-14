@@ -119,11 +119,11 @@ class Product extends \ShoppingCart\Product{
      * @param string $band If the product you are wanting the price for is a lesson then the band needs to be set as the one you are getting the price for
      * @return double Returns the price of the item
      */
-    public function getProductPrice($product_id, $band = false) {
+    public function getProductPrice($product_id) {
         $productInfo = $this->getProductByID($product_id);
         if($this->isProductLesson($product_id) && !$productInfo['price']) {
-            if($band && !empty($band)){
-                $price = $this->lesson->lessonPrice($productInfo['lessonrelation'], $band);
+            if($this->getPrice() && !empty($this->getPrice())){
+                $price = $this->lesson->lessonPrice($productInfo['lessonrelation'], $this->getPrice());
                 $this->priceband = $this->lesson->band['band'];
                 return Cost::priceUnits($price, $this->decimals);
             }
@@ -144,16 +144,10 @@ class Product extends \ShoppingCart\Product{
     public function buildProduct($url, $where = []) {
         $productInfo = parent::buildProduct($url, $where);
         if(!empty($productInfo)) {
-            if($productInfo['lesson'] && !$productInfo['price'] && $this->getNumPrices() == 1) {
-                $productInfo['priceband'] = $this->getPrice();
-            }
-            elseif($productInfo['lesson'] && !$productInfo['price']) {
+            if($productInfo['lesson'] && !$productInfo['price'] && $this->getNumPrices() > 1) {
                 $productInfo['lessonBox'] = true;
-                if($_SESSION['postcode']) {
-                    $productInfo['priceband'] = $this->lesson->getPostcodeBand($_SESSION['postcode']);
-                }
             }
-            $productInfo['price'] = $this->getProductPrice($productInfo['product_id'], $productInfo['priceband']);
+            $productInfo['price'] = $this->getProductPrice($productInfo['product_id']);
         }
         return $productInfo;
     }
