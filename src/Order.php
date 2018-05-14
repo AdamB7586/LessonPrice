@@ -54,6 +54,10 @@ class Order extends \ShoppingCart\Order{
         $basketInfo = parent::getBasket($orderNo, $additional);
         if($basketInfo['postcode'] !== NULL && empty($this->postcode)){$this->postcode = $basketInfo['postcode'];}
         if($basketInfo['band'] !== NULL && empty($this->priceband)){$this->priceband = $basketInfo['band'];}
+        $this->product->setPrice($this->priceband);
+        foreach($basketInfo['products'] as $i => $product){
+            $basketInfo['products'][$i]['price'] = $this->product->getProductPrice($product['product_id']);
+        }
         return $basketInfo;
     }
     
