@@ -4,7 +4,7 @@ namespace LessonPrice;
 
 use LessonPrice\Lesson;
 use DBAL\Database;
-use ShoppingCart\Config;
+use Configuration\Config;
 
 use ShoppingCart\Modifiers\Cost;
 

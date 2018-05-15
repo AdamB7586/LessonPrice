@@ -2,7 +2,7 @@
 namespace LessonPrice;
 
 use DBAL\Database;
-use ShoppingCart\Config;
+use Configuration\Config;
 
 class Lesson {
     protected $db;
