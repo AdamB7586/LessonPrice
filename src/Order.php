@@ -43,7 +43,7 @@ class Order extends \ShoppingCart\Order{
         if($orderInfo['postcode'] !== NULL && empty($this->postcode)){$this->postcode = $orderInfo['postcode'];}
         if($orderInfo['band'] !== NULL && empty($this->priceband)){$this->priceband = $orderInfo['band'];}
         $this->product->setPrice($this->priceband);
-        parent::buildOrder($orderInfo);
+        return parent::buildOrder($orderInfo);
     }
     
     /**
