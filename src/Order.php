@@ -35,6 +35,18 @@ class Order extends \ShoppingCart\Order{
     }
     
     /**
+     * Retrieves additional information for a given order
+     * @param array $orderInfo This should be the current order information
+     * @return array A full array of the order information will be returned 
+     */
+    protected function buildOrder($orderInfo) {
+        if($orderInfo['postcode'] !== NULL && empty($this->postcode)){$this->postcode = $orderInfo['postcode'];}
+        if($orderInfo['band'] !== NULL && empty($this->priceband)){$this->priceband = $orderInfo['band'];}
+        $this->product->setPrice($this->priceband);
+        parent::buildOrder($orderInfo);
+    }
+    
+    /**
      * Adds the order information into the database
      * @param array $additional Additional fields to insert
      * @return boolean If the order is successfully inserted will return true else returns false
