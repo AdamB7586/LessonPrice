@@ -192,8 +192,10 @@ class Product extends \ShoppingCart\Product{
             $sql.= ($sqlExist === true ? " OR " : "")."`products`.`product_id` = '".$special['product_id']."'";
         }
         $products = $this->db->query("SELECT `products`.* FROM `{$this->config->table_products}` as `products`, `{$this->config->table_product_categories}` as `category` WHERE ".($activeOnly === true ? "`products`.`active` = 1 AND " : "")."`products`.`product_id` = `category`.`product_id` AND `category`.`category_id` = ? AND (`products`.`lesson` != 1 OR (`products`.`lesson` = 1 AND (".$sql."))) ORDER BY `{$orderBy}`".($limit > 0 ? " LIMIT {$start}, {$limit}" : "").";", array($category_id));
-        foreach($products as $i => $product) {
-            $products[$i] = $this->buildProduct($product['custom_url']);
+        if(is_array($products)){
+            foreach($products as $i => $product) {
+                $products[$i] = $this->buildProduct($product['custom_url']);
+            }
         }
         return $products;
     }
