@@ -155,9 +155,9 @@ class Product extends \ShoppingCart\Product{
         if(!empty($productInfo)) {
             if($productInfo['lesson'] && !$productInfo['price'] && $this->getNumPrices() > 1) {
                 $productInfo['lessonBox'] = true;
-                if($this->getPrice() && !empty($this->getPrice())) {
-                    $productInfo = array_merge($productInfo, $this->lesson->lessonPrice($productInfo['lessonrelation'], $this->getPrice()));
-                }
+            }
+            elseif($productInfo['lesson'] && !$productInfo['price'] && $this->getNumPrices() == 1 && $this->getPrice() && !empty($this->getPrice())){
+                $productInfo = array_merge($productInfo, $this->lesson->lessonPrice($productInfo['lessonrelation'], $this->getPrice()));
             }
         }
         return $productInfo;
