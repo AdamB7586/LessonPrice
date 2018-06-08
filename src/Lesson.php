@@ -112,4 +112,18 @@ class Lesson {
         
         return $price;
     }
+    
+    /**
+     * List all of the prices in a certain area
+     * @param string $area The are you are wanting to list the price bands for
+     * @return array Returns an array of prices in the give area
+     */
+    public function listPricesByPostcodeArea($area){
+        $postcodeSQL = '';
+        for($i = 0; $i <= 9; $i++){
+            $postcodeSQL.= ($i > 0 ? " OR " : "")."`PostCode` LIKE ?";
+            $postcodes[] = $area.$i.'%';
+        }
+        return $this->db->query("SELECT DISTINCT `Price` FROM `{$this->config->table_postcodes}` WHERE {$postcodeSQL};", $postcodes);
+    }
 }
