@@ -21,7 +21,15 @@ class Product extends \ShoppingCart\Product{
 
     public function __construct(Database $db, Config $config) {
         parent::__construct($db, $config);
-        $this->lesson = new Lesson($db, $config);
+        
+    }
+    
+    /**
+     * Sets the lesson object to be used
+     * @param Lesson $lesson This should be an instance of the Lesson object
+     */
+    public function setLessonObject(Lesson $lesson){
+        $this->lesson = $lesson;
     }
     
     /**
