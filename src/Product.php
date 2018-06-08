@@ -193,6 +193,7 @@ class Product extends \ShoppingCart\Product{
      */
     public function getProductsInCategory($category_id, $orderBy = 'sales', $limit = 20, $start = 0, $activeOnly = true) {
         $sqlExist = false;
+        $sql = '';
         foreach($this->getLessonsAvaiable() as $i => $lesson) {
             $sql.= ($i >= 1 ? " OR " : "")."`products`.`lessonrelation` = '".$lesson."'";
             $sqlExist = true;
@@ -200,7 +201,7 @@ class Product extends \ShoppingCart\Product{
         foreach($this->getSpecialProducts() as $i => $special){
             $sql.= ($sqlExist === true ? " OR " : "")."`products`.`product_id` = '".$special['product_id']."'";
         }
-        $products = $this->db->query("SELECT `products`.* FROM `{$this->config->table_products}` as `products`, `{$this->config->table_product_categories}` as `category` WHERE ".($activeOnly === true ? "`products`.`active` = 1 AND " : "")."`products`.`product_id` = `category`.`product_id` AND `category`.`category_id` = ? AND (`products`.`lesson` != 1 OR (`products`.`lesson` = 1".($sql ? " AND ({$sql})" : "").")) ORDER BY `{$orderBy}`".($limit > 0 ? " LIMIT {$start}, {$limit}" : "").";", array($category_id));
+        $products = $this->db->query("SELECT `products`.* FROM `{$this->config->table_products}` as `products`, `{$this->config->table_product_categories}` as `category` WHERE ".($activeOnly === true ? "`products`.`active` = 1 AND " : "")."`products`.`product_id` = `category`.`product_id` AND `category`.`category_id` = ? AND (`products`.`lesson` != 1 OR (`products`.`lesson` = 1".(!empty($sql) ? " AND ({$sql})" : "").")) ORDER BY `{$orderBy}`".($limit > 0 ? " LIMIT {$start}, {$limit}" : "").";", array($category_id));
         if(is_array($products)){
             foreach($products as $i => $product) {
                 $products[$i] = $this->buildProduct($product['custom_url']);
