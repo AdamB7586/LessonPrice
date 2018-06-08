@@ -134,7 +134,7 @@ class Product extends \ShoppingCart\Product{
             if($this->getPrice() && !empty($this->getPrice())){
                 $price = $this->lesson->lessonPrice($productInfo['lessonrelation'], $this->getPrice());
                 $this->priceband = $this->lesson->band['band'];
-                return Cost::priceUnits($price, $this->decimals);
+                return Cost::priceUnits(($price['sale_price'] ? $price['sale_price'] : $price['price']), $this->decimals);
             }
             return false;
         }
@@ -155,8 +155,10 @@ class Product extends \ShoppingCart\Product{
         if(!empty($productInfo)) {
             if($productInfo['lesson'] && !$productInfo['price'] && $this->getNumPrices() > 1) {
                 $productInfo['lessonBox'] = true;
+                if($this->getPrice() && !empty($this->getPrice())) {
+                    $productInfo = array_merge($productInfo, $this->lesson->lessonPrice($productInfo['lessonrelation'], $this->getPrice()));
+                }
             }
-            $productInfo['price'] = $this->getProductPrice($productInfo['product_id']);
         }
         return $productInfo;
     }

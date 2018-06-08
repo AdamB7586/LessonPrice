@@ -101,11 +101,13 @@ class Lesson {
         if($lessoninfo['products']){$fee = $fee + $this->band['materials'];}
         if($lessoninfo['dsdvdwb']){$fee = $fee + $this->band['dsdvdwb'];}
         if($lessoninfo['dtc']){$fee = $fee + $this->band['dtc'];}
+        $price = [];
         if($relation != 'onehour'){
-            $price = ((($this->band['onehour'] - $this->band[$relation]) * $lessoninfo['hours']) + $fee);
+            $price['price'] = (($this->band['onehour'] * $lessoninfo['hours']) + $fee);
+            $price['sale_price'] = ((($this->band['onehour'] - $this->band[$relation]) * $lessoninfo['hours']) + $fee);
         }
         else{
-            $price = $this->band['onehour'];
+            $price['price'] = $this->band['onehour'];
         }
         
         return $price;
