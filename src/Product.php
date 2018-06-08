@@ -30,6 +30,7 @@ class Product extends \ShoppingCart\Product{
      */
     public function setLessonObject(Lesson $lesson){
         $this->lesson = $lesson;
+        return $this;
     }
     
     /**
