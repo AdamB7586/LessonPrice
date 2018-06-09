@@ -115,15 +115,47 @@ class Lesson {
     
     /**
      * List all of the prices in a certain area
-     * @param string $area The are you are wanting to list the price bands for
-     * @return array Returns an array of prices in the give area
+     * @param string $area The area you want to list the prices for
+     * @return array Returns an array of prices in the given area
      */
-    public function listPricesByPostcodeArea($area){
-        $postcodeSQL = '';
-        for($i = 0; $i <= 9; $i++){
-            $postcodeSQL.= ($i > 0 ? " OR " : "")."`PostCode` LIKE ?";
+    public function listPricesByPostcodeArea($area) {
+        $sql = '';
+        $postcodes = [];
+        for($i = 0; $i <= 9; $i++) {
+            $sql.= ($i > 0 ? " OR " : "")."`PostCode` LIKE ?";
             $postcodes[] = $area.$i.'%';
         }
-        return $this->db->query("SELECT DISTINCT `Price` FROM `{$this->config->table_postcodes}` WHERE {$postcodeSQL};", $postcodes);
+        return $this->db->query("SELECT DISTINCT `{$this->config->table_postcodes}`.`Price`, `{$this->config->table_priceband}`.* FROM `{$this->config->table_postcodes}`, `{$this->config->table_priceband}` WHERE {$sql} AND `{$this->config->table_postcodes}`.`Price` = `{$this->config->table_priceband}`.`band`;", $postcodes);
+    }
+    
+    /**
+     * Return a list of postcode in a postcode area
+     * @param string $area The area you want to list the postcode of
+     * @return array|false Returns an array of postcodes in the set area if any exist else will return false
+     */
+    public function listPostcodesInArea($area) {
+        $sql = '';
+        $postcodes = [];
+        for($i = 0; $i <= 9; $i++) {
+            $sql.= ($i > 0 ? " OR " : "")."`PostCode` LIKE ?";
+            $postcodes[] = $area.$i.'%';
+        }
+        return $this->db->query("SELECT `{$this->config->table_postcodes}`.`PostCode`, `{$this->config->table_priceband}`.* FROM `{$this->config->table_postcodes}`, `{$this->config->table_priceband}` WHERE {$sql} AND `{$this->config->table_postcodes}`.`Price` = `{$this->config->table_priceband}`.`band`;", $postcodes);
+    }
+    
+    /**
+     * Return a list of all of the prices for an array of given postcodes
+     * @param array $postcodes Should be an array of postcode that you wish to get the prices for
+     * @return array|false If any prices exist they will be returned as an array else will return false
+     */
+    public function listPricesbyPostcodes($postcodes){
+        if(is_array($postcodes)){
+            $sql = [];
+            foreach(array_filer($postcodes) as $postcode){
+                $sql[] = "`PostCode` LIKE ?";
+            }
+            return $this->db->query("SELECT DISTINCT `{$this->config->table_postcodes}`.`Price`, `{$this->config->table_priceband}`.* FROM `{$this->config->table_postcodes}`, `{$this->config->table_priceband}` WHERE ".implode(" OR ", $sql)." AND `{$this->config->table_postcodes}`.`Price` = `{$this->config->table_priceband}`.`band`;", array_filer($postcodes));
+        }
+        return false;
     }
 }
