@@ -151,10 +151,10 @@ class Lesson {
     public function listPricesbyPostcodes($postcodes){
         if(is_array($postcodes)){
             $sql = [];
-            foreach(array_filer($postcodes) as $postcode){
+            foreach(array_filter($postcodes) as $postcode){
                 $sql[] = "`PostCode` LIKE ?";
             }
-            return $this->db->query("SELECT DISTINCT `{$this->config->table_priceband}`.* FROM `{$this->config->table_postcodes}` INNER JOIN `{$this->config->table_priceband}` ON `{$this->config->table_postcodes}`.`Price` = `{$this->config->table_priceband}`.`band` WHERE ".implode(" OR ", $sql).";", array_filer($postcodes));
+            return $this->db->query("SELECT DISTINCT `{$this->config->table_priceband}`.* FROM `{$this->config->table_postcodes}` INNER JOIN `{$this->config->table_priceband}` ON `{$this->config->table_postcodes}`.`Price` = `{$this->config->table_priceband}`.`band` WHERE ".implode(" OR ", $sql).";", array_filter($postcodes));
         }
         return false;
     }
