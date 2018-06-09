@@ -125,7 +125,7 @@ class Lesson {
             $sql.= ($i > 0 ? " OR " : "")."`PostCode` LIKE ?";
             $postcodes[] = $area.$i.'%';
         }
-        return $this->db->query("SELECT DISTINCT `{$this->config->table_priceband}`.* FROM `{$this->config->table_postcodes}` INNER JOIN `{$this->config->table_priceband}` ON `{$this->config->table_postcodes}`.`Price` = `{$this->config->table_priceband}`.`band` WHERE {$sql};", $postcodes);
+        return $this->db->query("SELECT DISTINCT `{$this->config->table_priceband}`.* FROM `{$this->config->table_postcodes}` INNER JOIN `{$this->config->table_priceband}` ON `{$this->config->table_postcodes}`.`Price` = `{$this->config->table_priceband}`.`band` WHERE {$sql} ORDER BY `{$this->config->table_priceband}`.`onehour` ASC;", $postcodes);
     }
     
     /**
@@ -140,7 +140,7 @@ class Lesson {
             $sql.= ($i > 0 ? " OR " : "")."`PostCode` LIKE ?";
             $postcodes[] = $area.$i.'%';
         }
-        return $this->db->query("SELECT `PostCode` FROM `{$this->config->table_postcodes}` WHERE {$sql};", $postcodes);
+        return $this->db->query("SELECT `PostCode` FROM `{$this->config->table_postcodes}` WHERE {$sql} ORDER BY `postcode` ASC;", $postcodes);
     }
     
     /**
@@ -154,7 +154,7 @@ class Lesson {
             foreach(array_filter($postcodes) as $postcode){
                 $sql[] = "`PostCode` LIKE ?";
             }
-            return $this->db->query("SELECT DISTINCT `{$this->config->table_priceband}`.* FROM `{$this->config->table_postcodes}` INNER JOIN `{$this->config->table_priceband}` ON `{$this->config->table_postcodes}`.`Price` = `{$this->config->table_priceband}`.`band` WHERE ".implode(" OR ", $sql).";", array_filter($postcodes));
+            return $this->db->query("SELECT DISTINCT `{$this->config->table_priceband}`.* FROM `{$this->config->table_postcodes}` INNER JOIN `{$this->config->table_priceband}` ON `{$this->config->table_postcodes}`.`Price` = `{$this->config->table_priceband}`.`band` WHERE ".implode(" OR ", $sql)." ORDER BY `{$this->config->table_priceband}`.`onehour` ASC;", array_filter($postcodes));
         }
         return false;
     }
