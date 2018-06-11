@@ -89,11 +89,12 @@ class Lesson {
      * Returns the price of the given lesson for the postcode given
      * @param array $relation This should be all of the lesson price information in order to work out the lesson price
      * @param string $band This should be the price band that you wish to retrieve prices for
+     * @param array|false If you already have the information to compile the price assign this as an array else set to false
      * @return double|boolean Returns either the price if the price is not 0.00 else returns false
      */
-    public function lessonPrice($relation, $band){
+    public function lessonPrice($relation, $band, $lessoninfo = false){
         if(!isset($this->band)){$this->getPriceBandInfo($band);}
-        $lessoninfo = $this->db->select($this->config->table_priceband_info, array('course' => $relation));
+        if(!is_array($lessoninfo)){$lessoninfo = $this->db->select($this->config->table_priceband_info, array('course' => $relation));}
         
         $fee = 0;
         if($lessoninfo['test']){$fee = $fee + $this->band['testfee'];}
@@ -157,5 +158,18 @@ class Lesson {
             return $this->db->query("SELECT DISTINCT `{$this->config->table_priceband}`.* FROM `{$this->config->table_postcodes}` INNER JOIN `{$this->config->table_priceband}` ON `{$this->config->table_postcodes}`.`Price` = `{$this->config->table_priceband}`.`band` WHERE ".implode(" OR ", $sql)." ORDER BY `{$this->config->table_priceband}`.`onehour` ASC;", array_filter($postcodes));
         }
         return false;
+    }
+    
+    /**
+     * Returns a list of all of the lessons and prices for a given band
+     * @param string $band This should be the price band
+     * @return array Returns an array of prices
+     */
+    public function listLessonPrices($band){
+        $item = [];
+        foreach($this->db->selectAll($this->config->table_priceband_info) as $lesson){
+            $item[$lesson['course']] = $this->lessonPrice($lesson['course'], $band, $lesson);
+        }
+        return $item;
     }
 }
