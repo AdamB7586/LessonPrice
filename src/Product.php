@@ -187,13 +187,14 @@ class Product extends \ShoppingCart\Product{
     /**
      * Get all of the products in a given category based on the given parameters
      * @param int $category_id This should be the category ID that you are getting all the products within 
-     * @param string $orderBy How the products should be ordered can be on fields such as `sales`, `price`, `views` 
+     * @param string $orderBy How the products should be ordered can be on fields such as `sales`, `price`, `views`
+     * @param string $orderDir The direction it should be ordered ASC OR DESC
      * @param int $limit The maximum number of results to show
      * @param int $start The start location for the database results (Used for pagination)
      * @param boolean $activeOnly If you only want to display active product this should be set to true else should be set to false
      * @return array|false Returns an array containing the products in a given category if any exist else will return false if none exist 
      */
-    public function getProductsInCategory($category_id, $orderBy = 'sales', $limit = 20, $start = 0, $activeOnly = true) {
+    public function getProductsInCategory($category_id, $orderBy = 'sales', $orderDir = 'DESC', $limit = 20, $start = 0, $activeOnly = true) {
         $sqlExist = false;
         $sql = '';
         foreach($this->getLessonsAvaiable() as $i => $lesson) {
@@ -203,7 +204,7 @@ class Product extends \ShoppingCart\Product{
         foreach($this->getSpecialProducts() as $i => $special){
             $sql.= ($sqlExist === true ? " OR " : "")."`products`.`product_id` = '".$special['product_id']."'";
         }
-        $products = $this->db->query("SELECT `products`.* FROM `{$this->config->table_products}` as `products`, `{$this->config->table_product_categories}` as `category` WHERE ".($activeOnly === true ? "`products`.`active` = 1 AND " : "")."`products`.`product_id` = `category`.`product_id` AND `category`.`category_id` = ? AND (`products`.`lesson` != 1 OR (`products`.`lesson` = 1".(!empty($sql) ? " AND ({$sql})" : "").")) ORDER BY `{$orderBy}`".($limit > 0 ? " LIMIT {$start}, {$limit}" : "").";", array($category_id));
+        $products = $this->db->query("SELECT `products`.* FROM `{$this->config->table_products}` as `products`, `{$this->config->table_product_categories}` as `category` WHERE ".($activeOnly === true ? "`products`.`active` = 1 AND " : "")."`products`.`product_id` = `category`.`product_id` AND `category`.`category_id` = ? AND (`products`.`lesson` != 1 OR (`products`.`lesson` = 1".(!empty($sql) ? " AND ({$sql})" : "").")) ORDER BY `{$orderBy}` {$orderDir}".($limit > 0 ? " LIMIT {$start}, {$limit}" : "").";", array($category_id));
         if(is_array($products)){
             foreach($products as $i => $product) {
                 $products[$i] = $this->buildProduct($product['custom_url']);
