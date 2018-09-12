@@ -7,6 +7,7 @@ use DBAL\Database;
 use Configuration\Config;
 
 use ShoppingCart\Modifiers\Cost;
+use ShoppingCart\Modifiers\Validator;
 
 class Product extends \ShoppingCart\Product{
     
@@ -142,6 +143,18 @@ class Product extends \ShoppingCart\Product{
             if(is_numeric($productInfo['sale_price'])) {return Cost::priceUnits($productInfo['sale_price'], $this->decimals);}
             return Cost::priceUnits($productInfo['price'], $this->decimals);
         }
+    }
+    
+    /**
+     * Edit a product in the database
+     * @param type $product_id This should be the unique product ID you are updating
+     * @param array|false $image This should be the image to be associated with the product
+     * @param array $additionalInfo Any additional information you are updating should be set as an array here
+     * @return boolean If the information has successfully been updated will return true else returns false
+     */
+    public function editProduct($product_id, $image = false, $additionalInfo = []) {
+        $additionalInfo['lesson'] = Validator::setZeroOnEmpty($additionalInfo['lesson']);
+        return parent::editProduct($product_id, $image, $additionalInfo);
     }
     
     /**
