@@ -113,6 +113,17 @@ class Product extends \ShoppingCart\Product{
     }
     
     /**
+     * Get the product information by the lesson relation
+     * @param string $relation the relation string
+     * @param boolean $active If you only want to get active item set to true else set as false
+     * @param array $where Any additional information to search on should be added as an array
+     * @return array|false If the information exists returns an array else returns false
+     */
+    public function getProductByLessonRelation($relation, $active = true, $where = []){
+        return $this->getProduct(array_merge(['lessonrelation' => $relation], $where), $active);
+    }
+    
+    /**
      * Checks to see if the product is a download item
      * @param int $product_id the product ID of the item you are checking if the item is a download item
      * @return boolean If the item is a download item will return true else returns false

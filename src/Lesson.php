@@ -3,6 +3,7 @@ namespace LessonPrice;
 
 use DBAL\Database;
 use Configuration\Config;
+use LessonPrice\Product;
 
 class Lesson {
     protected $db;
@@ -169,8 +170,18 @@ class Lesson {
         $item = [];
         foreach($this->db->selectAll($this->config->table_priceband_info) as $lesson){
             $item[$lesson['course']] = $this->lessonPrice($lesson['course'], $band, $lesson);
-            $item[$lesson['course']]['info'] = $lesson;
+            $item[$lesson['course']]['info'] = $this->getLessonProductInformation($lesson['course']);
         }
         return $item;
+    }
+    
+    /**
+     * Get lesson product information
+     * @param string $course The lesson relation string
+     * @return array|false If information exists will return an array else return false
+     */
+    public function getLessonProductInformation($course){
+        $product = new Product($this->db, $this->config);
+        return $product->getProductByLessonRelation($course);
     }
 }
