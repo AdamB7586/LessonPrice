@@ -169,6 +169,7 @@ class Lesson {
         $item = [];
         foreach($this->db->selectAll($this->config->table_priceband_info) as $lesson){
             $item[$lesson['course']] = $this->lessonPrice($lesson['course'], $band, $lesson);
+            $item[$lesson['course']]['info'] = $lesson;
         }
         return $item;
     }
