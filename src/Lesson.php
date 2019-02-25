@@ -26,7 +26,7 @@ class Lesson {
      * @return array|boolean If postcodes exist will return array else will return false
      */
     public function listPostcodes($search = false){
-        if($search){$where = array('PostCode' => array('LIKE', $search.'%'));}
+        if($search){$where = ['PostCode' => ['LIKE', $search.'%']];}
         return $this->db->selectAll($this->config->table_postcodes, $where);
     }
     
@@ -35,7 +35,7 @@ class Lesson {
      * @return array|boolean Will return a list of all of the price bands in the database
      */
     public function listBands(){
-        return $this->db->selectAll($this->config->table_priceband, '', '*', array('onehour' => 'ASC'));
+        return $this->db->selectAll($this->config->table_priceband, '', '*', ['onehour' => 'ASC']);
     }
     
     /**
@@ -45,7 +45,7 @@ class Lesson {
      * @return boolean If the information is updated will return true else returns false
      */
     public function updateBand($postcode, $priceband){
-        return $this->db->update($this->config->table_postcodes, array('Price' => $priceband), array('PostCode' => $postcode), 1);
+        return $this->db->update($this->config->table_postcodes, ['Price' => $priceband], ['PostCode' => $postcode], 1);
     }
     
     /**
@@ -54,7 +54,7 @@ class Lesson {
      * @return string|boolean If the postcode exists will return the price band else will return false
      */
     public function getPostcodeBand($postcode){
-        $getPriceband = $this->db->select($this->config->table_postcodes, array('PostCode' => strtoupper(smallPostcode($postcode))), array('Price'));
+        $getPriceband = $this->db->select($this->config->table_postcodes, ['PostCode' => strtoupper(smallPostcode($postcode))], ['Price']);
         if($getPriceband['Price']){
             return $getPriceband['Price'];
         }
@@ -67,7 +67,7 @@ class Lesson {
      * @return array|boolean If the band exists it will return the price band info else returns false
      */
     public function getPriceBandInfo($band){
-        $this->band = $this->db->select($this->config->table_priceband, array('band' => strtoupper($band)));
+        $this->band = $this->db->select($this->config->table_priceband, ['band' => strtoupper($band)]);
         if(isset($this->band)){
             $this->band['twohours'] = $this->band['twohour'];
             return $this->band;
@@ -82,7 +82,7 @@ class Lesson {
      */
     public function selectPriceband($postcode){
         $this->postcode = smallPostcode($postcode);
-        $band = $this->db->select($this->config->table_postcodes, array('PostCode' => $this->postcode), array('Price'));
+        $band = $this->db->select($this->config->table_postcodes, ['PostCode' => $this->postcode], ['Price']);
         return $this->getPriceBandInfo($band['Price']);
     }
     
@@ -95,7 +95,7 @@ class Lesson {
      */
     public function lessonPrice($relation, $band, $lessoninfo = false){
         if(!isset($this->band)){$this->getPriceBandInfo($band);}
-        if(!is_array($lessoninfo)){$lessoninfo = $this->db->select($this->config->table_priceband_info, array('course' => $relation));}
+        if(!is_array($lessoninfo)){$lessoninfo = $this->db->select($this->config->table_priceband_info, ['course' => $relation]);}
         
         $fee = 0;
         if($lessoninfo['test']){$fee = $fee + $this->band['testfee'];}
