@@ -146,7 +146,7 @@ class Product extends \ShoppingCart\Product{
             if($this->getPrice() && !empty($this->getPrice())){
                 $price = $this->lesson->lessonPrice($productInfo['lessonrelation'], $this->getPrice());
                 $this->priceband = $this->lesson->band['band'];
-                return Cost::priceUnits(($price['sale_price'] ? $price['sale_price'] : $price['price']), $this->decimals);
+                return Cost::priceUnits((isset($price['sale_price']) ? $price['sale_price'] : $price['price']), $this->decimals);
             }
             return false;
         }
