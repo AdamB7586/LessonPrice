@@ -69,7 +69,10 @@ class Product extends \ShoppingCart\Product{
      * @return string
      */
     public function getPrice() {
-        return $this->priceband;
+        if(!empty($this->priceband)){
+            return $this->priceband;
+        }
+        return false;
     }
     
     /**
@@ -143,7 +146,7 @@ class Product extends \ShoppingCart\Product{
     public function getProductPrice($product_id) {
         $productInfo = $this->getProductByID($product_id);
         if($this->isProductLesson($product_id) && !$productInfo['price']) {
-            if($this->getPrice() && !empty($this->getPrice())){
+            if($this->getPrice()){
                 $price = $this->lesson->lessonPrice($productInfo['lessonrelation'], $this->getPrice());
                 $this->priceband = $this->lesson->band['band'];
                 return Cost::priceUnits((isset($price['sale_price']) ? $price['sale_price'] : $price['price']), $this->decimals);
@@ -180,7 +183,7 @@ class Product extends \ShoppingCart\Product{
             if($productInfo['lesson'] && !$productInfo['price'] && $this->getNumPrices() > 1) {
                 $productInfo['lessonBox'] = true;
             }
-            elseif($productInfo['lesson'] && !$productInfo['price'] && $this->getNumPrices() == 1 && $this->getPrice() && !empty($this->getPrice())){
+            if($productInfo['lesson'] && !$productInfo['price'] && $this->getPrice()){
                 $productInfo = array_merge($productInfo, $this->lesson->lessonPrice($productInfo['lessonrelation'], $this->getPrice()));
                 $productInfo['priceband'] = $this->getPrice();
             }
@@ -198,13 +201,8 @@ class Product extends \ShoppingCart\Product{
         if($categoryInfo['lessons'] && $this->getNumPrices() > 1) {
             $categoryInfo['lessonBox'] = true;
         }
-        if($categoryInfo['lessons'] && ($this->getNumPrices() == 1 || isset($_SESSION['postcode']))) {
-            if($this->getNumPrices() == 1) {
-                $categoryInfo['band'] = $this->getPrice();
-            }
-            else{
-                $categoryInfo['band'] = $this->lesson->getPostcodeBand($_SESSION['postcode']);
-            }
+        if($categoryInfo['lessons'] && $this->getPrice()) {
+            $categoryInfo['band'] = $this->getPrice();
         }
         return $categoryInfo;
     }
