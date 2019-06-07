@@ -262,7 +262,7 @@ class Product extends \ShoppingCart\Product{
     public function getHomepageProducts($orderBy = 'sales', $orderDir = 'DESC', $limit = 20, $start = 0, array $additionalInfo = []) {
         $homepage = [];
         $homepage['products'] = parent::getHomepageProducts($orderBy, $orderDir, $limit, $start, $additionalInfo);
-        if($this->getNumPrices() == 1 && $this->getPrice() && !empty($this->getPrice())){
+        if($this->getPrice() && !empty($this->getPrice())){
             $homepage['band'] = $this->getPrice();
         }
         return $homepage;
