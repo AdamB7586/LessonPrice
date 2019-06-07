@@ -182,6 +182,7 @@ class Product extends \ShoppingCart\Product{
             }
             elseif($productInfo['lesson'] && !$productInfo['price'] && $this->getNumPrices() == 1 && $this->getPrice() && !empty($this->getPrice())){
                 $productInfo = array_merge($productInfo, $this->lesson->lessonPrice($productInfo['lessonrelation'], $this->getPrice()));
+                $productInfo['priceband'] = $this->getPrice();
             }
         }
         return $productInfo;
@@ -247,5 +248,22 @@ class Product extends \ShoppingCart\Product{
             $offerRelation[]['product_id'] = $this->db->fetchColumn($this->config->table_offers, array('offer_id' => $offer), array('product_id'));
         }
         return $offerRelation;
+    }
+    
+    /**
+     * Returns the products that should be featured on the homepage
+     * @param string $orderBy How the products should be ordered can be on fields such as `sales`, `price`, `views` 
+     * @param string $orderDir The direction it should be ordered ASC OR DESC
+     * @param int $limit The maximum number of results to show
+     * @param int $start The start location for the database results (Used for pagination)
+     * @param array $additionalInfo Any additional fields to add to the query
+     * @return array|false Returns an array containing the products in a given category if any exist else will return false if none exist 
+     */
+    public function getHomepageProducts($orderBy = 'sales', $orderDir = 'DESC', $limit = 20, $start = 0, array $additionalInfo = []) {
+        $homepage = parent::getHomepageProducts($orderBy, $orderDir, $limit, $start, $additionalInfo);
+        if($this->getNumPrices() == 1 && $this->getPrice() && !empty($this->getPrice())){
+            $homepage['band'] = $this->getPrice();
+        }
+        return $homepage;
     }
 }
