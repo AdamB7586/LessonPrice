@@ -198,7 +198,7 @@ class Product extends \ShoppingCart\Product{
         if($categoryInfo['lessons'] && $this->getNumPrices() > 1) {
             $categoryInfo['lessonBox'] = true;
         }
-        if($categoryInfo['lessons'] && ($this->getNumPrices() == 1 || $_SESSION['postcode'])) {
+        if($categoryInfo['lessons'] && ($this->getNumPrices() == 1 || isset($_SESSION['postcode']))) {
             if($this->getNumPrices() == 1) {
                 $categoryInfo['band'] = $this->getPrice();
             }
