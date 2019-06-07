@@ -260,7 +260,8 @@ class Product extends \ShoppingCart\Product{
      * @return array|false Returns an array containing the products in a given category if any exist else will return false if none exist 
      */
     public function getHomepageProducts($orderBy = 'sales', $orderDir = 'DESC', $limit = 20, $start = 0, array $additionalInfo = []) {
-        $homepage = parent::getHomepageProducts($orderBy, $orderDir, $limit, $start, $additionalInfo);
+        $homepage = [];
+        $homepage['products'] = parent::getHomepageProducts($orderBy, $orderDir, $limit, $start, $additionalInfo);
         if($this->getNumPrices() == 1 && $this->getPrice() && !empty($this->getPrice())){
             $homepage['band'] = $this->getPrice();
         }
