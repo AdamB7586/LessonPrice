@@ -133,4 +133,16 @@ class Order extends \ShoppingCart\Order{
         }
         return $status;
     }
+    
+    /**
+     * Send an order email
+     * @param array $orderInfo This should be the order information
+     * @param string $emailType This should be the string of the email type
+     * @param array $variables This should be the variables to include in the email
+     * @param boolean $toUser If the email is to be sent to the end user set to true else for the office email set to false
+     * @return boolean Will return true if email is sent else will return false
+     */
+    public function sendOfficeEmail($orderInfo, $emailType, $variables = array()) {
+        return false;
+    }
 }
