@@ -126,10 +126,10 @@ class Order extends \ShoppingCart\Order{
             $staffInfo = $staff->getActiveStaff();
             
             $careHTML = sprintf($this->config->email_lesson_purchase_body, $orderInfo['user']['title'], $orderInfo['user']['lastname'], $orderInfo['order_no'], $staffInfo['fullname']);
-            Mailer::sendEmail($orderInfo['user']['email'], $this->config->email_lesson_purchase_subject, Html2Text::convert($careHTML, ['ignore_errors' => true]), $careHTML, $staffInfo['email'], $staffInfo['fullname']);
+            Mailer::sendEmail($orderInfo['user']['email'], $this->config->email_lesson_purchase_subject, Html2Text::convert($careHTML, ['ignore_errors' => true]), Mailer::htmlWrapper($careHTML), $staffInfo['email'], $staffInfo['fullname']);
             
             $officeHTML = sprintf($this->config->email_office_lesson_body, $orderInfo['order_no'], $this->config->site_url, $orderInfo['delivery_info']['title'], $orderInfo['delivery_info']['firstname'], $orderInfo['delivery_info']['lastname'], $orderInfo['delivery_info']['add_1'], $orderInfo['delivery_info']['add_2'], $orderInfo['delivery_info']['town'], $orderInfo['delivery_info']['county'], $orderInfo['delivery_info']['postcode'], $orderInfo['user']['phone'], $orderInfo['user']['mobile'], $orderInfo['user']['email'], $orderInfo['user']['title'], $orderInfo['user']['firstname'], $orderInfo['user']['lastname'], $orderInfo['user']['add_1'], $orderInfo['user']['add_2'], $orderInfo['user']['town'], $orderInfo['user']['county'], $orderInfo['user']['postcode'], $orderInfo['postcode'], $this->emailFormatProducts($orderInfo));
-            Mailer::sendEmail($staffInfo['email'], $this->config->email_office_lesson_subject, Html2Text::convert($officeHTML, ['ignore_errors' => true]), $officeHTML, $orderInfo['user']['email'], $orderInfo['user']['title'].' '. $orderInfo['user']['firstname'].' '.$orderInfo['user']['lastname']);
+            Mailer::sendEmail($staffInfo['email'], $this->config->email_office_lesson_subject, Html2Text::convert($officeHTML, ['ignore_errors' => true]), Mailer::htmlWrapper($officeHTML), $orderInfo['user']['email'], $orderInfo['user']['title'].' '. $orderInfo['user']['firstname'].' '.$orderInfo['user']['lastname']);
         }
         return $status;
     }
