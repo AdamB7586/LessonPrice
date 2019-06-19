@@ -132,7 +132,7 @@ class Order extends \ShoppingCart\Order{
             }
             
             foreach($this->lessonPurchaseEmails($orderInfo, $staffInfo) as $email){
-                Mailer::sendEmail($email['email_to'], $this->config->{"email_".strtolower($email['email'])."_subject"}, Html2Text::convert(vsprintf($this->config->{"email_".strtolower($email['email'])."_body"}, $email['variables']), ['ignore_errors' => true]), Mailer::htmlWrapper($this->config, vsprintf($this->config->{"email_".strtolower($email['email'])."_body"}, $email['variables']), $this->config->{"email_".strtolower($email['email'])."_subject"}), $email['email_from'], $staffInfo['email_from_name']);
+                Mailer::sendEmail($email['email_to'], $this->config->{"email_".strtolower($email['email'])."_subject"}, Html2Text::convert(vsprintf($this->config->{"email_".strtolower($email['email'])."_body"}, $email['variables']), ['ignore_errors' => true]), Mailer::htmlWrapper($this->config, vsprintf($this->config->{"email_".strtolower($email['email'])."_body"}, $email['variables']), $this->config->{"email_".strtolower($email['email'])."_subject"}), $email['email_from'], $email['email_from_name']);
             }
         }
         return $status;
