@@ -123,15 +123,32 @@ class Order extends \ShoppingCart\Order{
         $orderInfo = $this->getOrderByID($order_id);
         if(intval($new_status) === 2 && $sendEmail === true && $orderInfo['lesson'] != 0){
             $staff = new SalesTeam($this->db);
-            $staffInfo = $staff->getActiveStaff();
+            if($orderInfo['staffid'] >= 1){
+                $staffInfo = $staff->getStaffInfoByID($orderInfo['staffid']);
+            }
+            else{
+                $staffInfo = $staff->getActiveStaff();
+                $this->db->update($this->config->table_basket, ['staffid' => $staffInfo['id']], ['order_id' => $orderInfo['order_id']], 1);
+            }
             
-            $careHTML = sprintf($this->config->email_lesson_purchase_body, $orderInfo['user']['title'], $orderInfo['user']['lastname'], $orderInfo['order_no'], $staffInfo['fullname']);
-            Mailer::sendEmail($orderInfo['user']['email'], $this->config->email_lesson_purchase_subject, Html2Text::convert($careHTML, ['ignore_errors' => true]), Mailer::htmlWrapper($this->config, $careHTML, $this->config->email_lesson_purchase_subject), $staffInfo['email'], $staffInfo['fullname']);
-            
-            $officeHTML = sprintf($this->config->email_office_lesson_body, $orderInfo['order_no'], $this->config->site_url, $orderInfo['delivery_info']['title'], $orderInfo['delivery_info']['firstname'], $orderInfo['delivery_info']['lastname'], $orderInfo['delivery_info']['add_1'], $orderInfo['delivery_info']['add_2'], $orderInfo['delivery_info']['town'], $orderInfo['delivery_info']['county'], $orderInfo['delivery_info']['postcode'], $orderInfo['user']['phone'], $orderInfo['user']['mobile'], $orderInfo['user']['email'], $orderInfo['user']['title'], $orderInfo['user']['firstname'], $orderInfo['user']['lastname'], $orderInfo['user']['add_1'], $orderInfo['user']['add_2'], $orderInfo['user']['town'], $orderInfo['user']['county'], $orderInfo['user']['postcode'], $orderInfo['postcode'], $this->emailFormatProducts($orderInfo));
-            Mailer::sendEmail($staffInfo['email'], $this->config->email_office_lesson_subject, Html2Text::convert($officeHTML, ['ignore_errors' => true]), Mailer::htmlWrapper($this->config, $officeHTML, $this->config->email_office_lesson_subject), $orderInfo['user']['email'], $orderInfo['user']['title'].' '. $orderInfo['user']['firstname'].' '.$orderInfo['user']['lastname']);
+            foreach($this->lessonPurchaseEmails($orderInfo, $staffInfo) as $email){
+                Mailer::sendEmail($email['email_to'], $this->config->{"email_".strtolower($email['email'])."_subject"}, Html2Text::convert(vsprintf($this->config->{"email_".strtolower($email['email'])."_body"}, $email['variables']), ['ignore_errors' => true]), Mailer::htmlWrapper($this->config, vsprintf($this->config->{"email_".strtolower($email['email'])."_body"}, $email['variables']), $this->config->{"email_".strtolower($email['email'])."_subject"}), $email['email_from'], $staffInfo['email_from_name']);
+            }
         }
         return $status;
+    }
+    
+    /**
+     * Gets all of the emails to send as part of a lesson purchase
+     * @param array $orderInfo This is the order information
+     * @param array $staffInfo This is the sales staff information of the person that has been assigned
+     * @return array An array containing the information required for the emails is returned
+     */
+    protected function lessonPurchaseEmails($orderInfo, $staffInfo){
+        return [
+            ['email' => 'lesson_purchase', 'email_to' => $orderInfo['user']['email'], 'email_from' => $staffInfo['email'], 'email_from_name' => $staffInfo['fullname'], 'variables' => [$orderInfo['user']['title'], $orderInfo['user']['lastname'], $orderInfo['order_no'], $staffInfo['fullname']]],
+            ['email' => 'office_lesson', 'email_to' => $staffInfo['email'], 'email_from' => $orderInfo['user']['email'], 'email_from_name' => $orderInfo['user']['title'].' '. $orderInfo['user']['firstname'].' '.$orderInfo['user']['lastname'], 'variables' => [$orderInfo['order_no'], $this->config->site_url, $orderInfo['delivery_info']['title'], $orderInfo['delivery_info']['firstname'], $orderInfo['delivery_info']['lastname'], $orderInfo['delivery_info']['add_1'], $orderInfo['delivery_info']['add_2'], $orderInfo['delivery_info']['town'], $orderInfo['delivery_info']['county'], $orderInfo['delivery_info']['postcode'], $orderInfo['user']['phone'], $orderInfo['user']['mobile'], $orderInfo['user']['email'], $orderInfo['user']['title'], $orderInfo['user']['firstname'], $orderInfo['user']['lastname'], $orderInfo['user']['add_1'], $orderInfo['user']['add_2'], $orderInfo['user']['town'], $orderInfo['user']['county'], $orderInfo['user']['postcode'], $orderInfo['postcode'], $this->emailFormatProducts($orderInfo)]],
+        ];
     }
     
     /**
