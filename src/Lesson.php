@@ -26,6 +26,7 @@ class Lesson {
      * @return array|boolean If postcodes exist will return array else will return false
      */
     public function listPostcodes($search = false){
+        $where = [];
         if($search){$where = ['PostCode' => ['LIKE', $search.'%']];}
         return $this->db->selectAll($this->config->table_postcodes, $where);
     }
@@ -35,7 +36,7 @@ class Lesson {
      * @return array|boolean Will return a list of all of the price bands in the database
      */
     public function listBands(){
-        return $this->db->selectAll($this->config->table_priceband, '', '*', ['onehour' => 'ASC']);
+        return $this->db->selectAll($this->config->table_priceband, [], '*', ['onehour' => 'ASC']);
     }
     
     /**
