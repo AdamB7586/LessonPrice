@@ -4,10 +4,9 @@ namespace LessonPrice;
 
 use LessonPrice\Lesson;
 use DBAL\Database;
+use DBAL\Modifiers\Modifier;
 use Configuration\Config;
-
 use ShoppingCart\Modifiers\Cost;
-use ShoppingCart\Modifiers\Validator;
 
 class Product extends \ShoppingCart\Product{
     
@@ -167,7 +166,7 @@ class Product extends \ShoppingCart\Product{
      * @return boolean If the information has successfully been updated will return true else returns false
      */
     public function editProduct($product_id, $image = false, $additionalInfo = []) {
-        $additionalInfo['lesson'] = Validator::setZeroOnEmpty($additionalInfo['lesson']);
+        $additionalInfo['lesson'] = Modifier::setZeroOnEmpty($additionalInfo['lesson']);
         return parent::editProduct($product_id, $image, $additionalInfo);
     }
     
