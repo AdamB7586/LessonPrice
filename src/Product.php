@@ -18,11 +18,6 @@ class Product extends \ShoppingCart\Product{
     protected $numPrices = 1;
     protected $lessonsAvailable = [];
     protected $offers = [];
-
-    public function __construct(Database $db, Config $config) {
-        parent::__construct($db, $config);
-        
-    }
     
     /**
      * Sets the lesson object to be used
