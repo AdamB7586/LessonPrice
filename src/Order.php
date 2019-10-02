@@ -13,6 +13,8 @@ class Order extends \ShoppingCart\Order{
     private $postcode;
     private $priceband;
     
+    protected $saleStaff;
+    
     /**
      * Set the postcode
      * @param string $postcode This should be the postcode for the prices
@@ -35,6 +37,16 @@ class Order extends \ShoppingCart\Order{
             $this->priceband = $band;
             $this->product->setPrice($this->priceband);
         }
+        return $this;
+    }
+    
+    /**
+     * Sets the sales staff object
+     * @param SalesTeam $sales This should be the sales team object
+     * @return $this
+     */
+    public function setSalesStaffObject(SalesTeam $sales){
+        $this->saleStaff = $sales;
         return $this;
     }
     
@@ -107,7 +119,6 @@ class Order extends \ShoppingCart\Order{
             }
         }
         parent::updateTotals();
-        
     }
     
     /**
@@ -121,13 +132,12 @@ class Order extends \ShoppingCart\Order{
     public function changeOrderStatus($order_id, $new_status, $setPaidDate = false, $sendEmail = true) {
         $status = parent::changeOrderStatus($order_id, $new_status, $setPaidDate, $sendEmail);
         $orderInfo = $this->getOrderByID($order_id);
-        if(intval($new_status) === 2 && $sendEmail === true && $orderInfo['lesson'] != 0){
-            $staff = new SalesTeam($this->db);
+        if(intval($new_status) === 2 && $sendEmail === true && $orderInfo['lesson'] != 0 && is_object($this->saleStaff)){
             if($orderInfo['staffid'] >= 1){
-                $staffInfo = $staff->getStaffInfoByID($orderInfo['staffid']);
+                $staffInfo = $this->saleStaff->getStaffInfoByID($orderInfo['staffid']);
             }
             else{
-                $staffInfo = $staff->getActiveStaff();
+                $staffInfo = $this->saleStaff->getActiveStaff();
                 $this->db->update($this->config->table_basket, ['staffid' => $staffInfo['id']], ['order_id' => $orderInfo['order_id']], 1);
             }
             
