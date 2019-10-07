@@ -143,7 +143,7 @@ class Lesson {
             $sql.= ($i > 0 ? " OR " : "")."`PostCode` LIKE ?";
             $postcodes[] = $area.$i.'%';
         }
-        return $this->db->query("SELECT `PostCode` FROM `{$this->config->table_postcodes}` WHERE {$sql} ORDER BY `postcode` ASC;", $postcodes);
+        return $this->db->query("SELECT * FROM `{$this->config->table_postcodes}` WHERE {$sql} ORDER BY `postcode` ASC;", $postcodes);
     }
     
     /**
