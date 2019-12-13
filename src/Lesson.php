@@ -27,7 +27,7 @@ class Lesson {
      */
     public function listPostcodes($search = false){
         $where = [];
-        if($search){$where = ['PostCode' => ['LIKE', $search.'%']];}
+        if($search){$where = ['postcode' => ['LIKE', $search.'%']];}
         return $this->db->selectAll($this->config->table_postcodes, $where);
     }
     
@@ -42,22 +42,27 @@ class Lesson {
     /**
      * Update the information for a given postcode
      * @param string $postcode This should be the postcode of the information you are updating
-     * @param string $priceband The new price band you want to assign the postcode to 
+     * @param array $priceband The new price bands you want to assign the postcode to 
      * @return boolean If the information is updated will return true else returns false
      */
     public function updateBand($postcode, $priceband){
-        return $this->db->update($this->config->table_postcodes, ['Price' => $priceband], ['PostCode' => $postcode], 1);
+        if(is_array($priceband) && !empty($priceband)){
+            return $this->db->update($this->config->table_postcodes, $priceband, ['postcode' => $postcode], 1);
+        }
+        return false;
     }
     
     /**
      * Checks to see if the postcode entered exists in the database and returns the price band
      * @param string $postcode This should be the postcode you wish to check the price band for
+     * @param boolean $manual If you are searching for a manual price set to true else for automatic set to false (default = true)
      * @return string|boolean If the postcode exists will return the price band else will return false
      */
-    public function getPostcodeBand($postcode){
-        $getPriceband = $this->db->select($this->config->table_postcodes, ['PostCode' => strtoupper(smallPostcode($postcode))], ['Price']);
-        if($getPriceband['Price']){
-            return $getPriceband['Price'];
+    public function getPostcodeBand($postcode, $manual = true){
+        $transmission = ($manual !== true ? 'auto' : 'manual');
+        $getPriceband = $this->db->select($this->config->table_postcodes, ['postcode' => strtoupper(smallPostcode($postcode))], [$transmission]);
+        if($getPriceband[$transmission]){
+            return $getPriceband[$transmission];
         }
         return false;
     }
@@ -79,12 +84,14 @@ class Lesson {
     /**
      * Get all of the price band information for a given postcode
      * @param string $postcode This should be the postcode that you wish to retrieve the prices for
+     * @param boolean $manual If you are searching for a manual price set to true else for automatic set to false (default = true)
      * @return array|boolean Returns and array if the postcode price band exists else returns false
      */
-    public function selectPriceband($postcode){
+    public function selectPriceband($postcode, $manual = true){
         $this->postcode = smallPostcode($postcode);
-        $band = $this->db->select($this->config->table_postcodes, ['PostCode' => $this->postcode], ['Price']);
-        return $this->getPriceBandInfo($band['Price']);
+        $transmission = ($manual !== true ? 'auto' : 'manual');
+        $band = $this->db->select($this->config->table_postcodes, ['postcode' => $this->postcode], [$transmission]);
+        return $this->getPriceBandInfo($band[$transmission]);
     }
     
     /**
@@ -119,16 +126,18 @@ class Lesson {
     /**
      * List all of the prices in a certain area
      * @param string $area The area you want to list the prices for
+     * @param boolean $manual If you are searching for a manual price set to true else for automatic set to false (default = true)
      * @return array Returns an array of prices in the given area
      */
-    public function listPricesByPostcodeArea($area) {
+    public function listPricesByPostcodeArea($area, $manual = true) {
         $sql = '';
         $postcodes = [];
         for($i = 0; $i <= 9; $i++) {
-            $sql.= ($i > 0 ? " OR " : "")."`PostCode` LIKE ?";
+            $sql.= ($i > 0 ? " OR " : "")."`postcode` LIKE ?";
             $postcodes[] = $area.$i.'%';
         }
-        return $this->db->query("SELECT DISTINCT `{$this->config->table_priceband}`.* FROM `{$this->config->table_postcodes}` INNER JOIN `{$this->config->table_priceband}` ON `{$this->config->table_postcodes}`.`Price` = `{$this->config->table_priceband}`.`band` WHERE {$sql} ORDER BY `{$this->config->table_priceband}`.`onehour` ASC;", $postcodes);
+        $transmission = ($manual !== true ? 'auto' : 'manual');
+        return $this->db->query("SELECT DISTINCT `{$this->config->table_priceband}`.* FROM `{$this->config->table_postcodes}` INNER JOIN `{$this->config->table_priceband}` ON `{$this->config->table_postcodes}`.`{$transmission}` = `{$this->config->table_priceband}`.`band` WHERE {$sql} ORDER BY `{$this->config->table_priceband}`.`onehour` ASC;", $postcodes);
     }
     
     /**
@@ -140,7 +149,7 @@ class Lesson {
         $sql = '';
         $postcodes = [];
         for($i = 0; $i <= 9; $i++) {
-            $sql.= ($i > 0 ? " OR " : "")."`PostCode` LIKE ?";
+            $sql.= ($i > 0 ? " OR " : "")."`postcode` LIKE ?";
             $postcodes[] = $area.$i.'%';
         }
         return $this->db->query("SELECT * FROM `{$this->config->table_postcodes}` WHERE {$sql} ORDER BY `postcode` ASC;", $postcodes);
@@ -149,15 +158,17 @@ class Lesson {
     /**
      * Return a list of all of the prices for an array of given postcodes
      * @param array $postcodes Should be an array of postcode that you wish to get the prices for
+     * @param boolean $manual If you are searching for a manual price set to true else for automatic set to false (default = true)
      * @return array|false If any prices exist they will be returned as an array else will return false
      */
-    public function listPricesbyPostcodes($postcodes){
+    public function listPricesbyPostcodes($postcodes, $manual = true){
         if(is_array($postcodes)){
             $sql = [];
             foreach(array_filter($postcodes) as $postcode){
-                $sql[] = "`PostCode` LIKE ?";
+                $sql[] = "`postcode` LIKE ?";
             }
-            return $this->db->query("SELECT DISTINCT `{$this->config->table_priceband}`.* FROM `{$this->config->table_postcodes}` INNER JOIN `{$this->config->table_priceband}` ON `{$this->config->table_postcodes}`.`Price` = `{$this->config->table_priceband}`.`band` WHERE ".implode(" OR ", $sql)." ORDER BY `{$this->config->table_priceband}`.`onehour` ASC;", array_values(array_filter($postcodes)));
+            $transmission = ($manual !== true ? 'auto' : 'manual');
+            return $this->db->query("SELECT DISTINCT `{$this->config->table_priceband}`.* FROM `{$this->config->table_postcodes}` INNER JOIN `{$this->config->table_priceband}` ON `{$this->config->table_postcodes}`.`{$transmission}` = `{$this->config->table_priceband}`.`band` WHERE ".implode(" OR ", $sql)." ORDER BY `{$this->config->table_priceband}`.`onehour` ASC;", array_values(array_filter($postcodes)));
         }
         return false;
     }
