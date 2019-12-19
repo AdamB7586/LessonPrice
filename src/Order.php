@@ -12,6 +12,7 @@ class Order extends \ShoppingCart\Order{
     
     private $postcode;
     private $priceband;
+    private $transmission = 0;
     
     protected $saleStaff;
     
@@ -51,13 +52,33 @@ class Order extends \ShoppingCart\Order{
     }
     
     /**
+     * Sets the transmission type
+     * @param string $type This should currently be set to either 'manual' or 'auto'
+     * @return $this
+     */
+    public function setTransmissionType($type) {
+        if(!empty($type)){
+            $this->transmission = ($type == 'auto' ? 1 : 0);
+        }
+        return $this;
+    }
+    
+    /**
+     * Returns an integer to define the transmission type (1 = Automatic, 0 = Manual)
+     * @return int
+     */
+    public function getTransmissionType(){
+        return $this->transmission;
+    }
+    
+    /**
      * Retrieves additional information for a given order
      * @param array $orderInfo This should be the current order information
      * @return array A full array of the order information will be returned 
      */
     protected function buildOrder($orderInfo) {
-        if($orderInfo['postcode'] !== NULL && empty($this->postcode)){$this->postcode = $orderInfo['postcode'];}
-        if($orderInfo['band'] !== NULL && empty($this->priceband)){$this->priceband = $orderInfo['band'];}
+        if(($orderInfo['postcode'] !== NULL && empty($this->postcode)) || $this->postcode != $orderInfo['postcode']){$this->postcode = $orderInfo['postcode'];}
+        if(($orderInfo['band'] !== NULL && empty($this->priceband)) || $this->priceband != $orderInfo['band']){$this->priceband = $orderInfo['band'];}
         $this->product->setPrice($this->priceband);
         return parent::buildOrder($orderInfo);
     }
@@ -69,7 +90,7 @@ class Order extends \ShoppingCart\Order{
      */
     protected function createOrder($additional = []) {
         $this->updateTotals();
-        return $this->db->insert($this->config->table_basket, array_merge(['customer_id' => ($this->user_id === 0 ? NULL : $this->user_id), 'order_no' => $this->createOrderID(), 'digital' => $this->has_download, 'lesson' => $this->lesson, 'postcode' => (!empty($this->postcode) ? $this->postcode : NULL), 'band' => (!empty($this->priceband) ? $this->priceband : NULL), 'subtotal' => $this->totals['subtotal'], 'discount' => $this->totals['discount'], 'total_tax' => $this->totals['tax'], 'delivery' => $this->totals['delivery'], 'cart_total' => $this->totals['total'], 'sessionid' => session_id(), 'ipaddress' => filter_input(INPUT_ENV, 'REMOTE_ADDR', FILTER_VALIDATE_IP)], $additional));
+        return $this->db->insert($this->config->table_basket, array_merge(['customer_id' => ($this->user_id === 0 ? NULL : $this->user_id), 'order_no' => $this->createOrderID(), 'digital' => $this->has_download, 'lesson' => $this->lesson, 'transmission' => $this->getTransmissionType(), 'postcode' => (!empty($this->postcode) ? $this->postcode : NULL), 'band' => (!empty($this->priceband) ? $this->priceband : NULL), 'subtotal' => $this->totals['subtotal'], 'discount' => $this->totals['discount'], 'total_tax' => $this->totals['tax'], 'delivery' => $this->totals['delivery'], 'cart_total' => $this->totals['total'], 'sessionid' => session_id(), 'ipaddress' => filter_input(INPUT_ENV, 'REMOTE_ADDR', FILTER_VALIDATE_IP)], $additional));
     }
     
     /**
@@ -99,7 +120,7 @@ class Order extends \ShoppingCart\Order{
     protected function updateBasket($additional = []) {
         $this->updateTotals();
         if(count($this->products) >= 1){
-            return $this->db->update($this->config->table_basket, ['digital' => $this->has_download, 'lesson' => $this->lesson, 'postcode' => (!empty($this->postcode) ? $this->postcode : NULL), 'band' => (!empty($this->priceband) ? $this->priceband : NULL), 'subtotal' => $this->totals['subtotal'], 'discount' => $this->totals['discount'], 'total_tax' => $this->totals['tax'], 'delivery' => $this->totals['delivery'], 'cart_total' => $this->totals['total']], array_merge(['customer_id' => ($this->user_id === 0 ? 'IS NULL' : $this->user_id), 'sessionid' => session_id(), 'status' => 1], $additional));
+            return $this->db->update($this->config->table_basket, ['digital' => $this->has_download, 'lesson' => $this->lesson, 'transmission' => $this->getTransmissionType(),  'postcode' => (!empty($this->postcode) ? $this->postcode : NULL), 'band' => (!empty($this->priceband) ? $this->priceband : NULL), 'subtotal' => $this->totals['subtotal'], 'discount' => $this->totals['discount'], 'total_tax' => $this->totals['tax'], 'delivery' => $this->totals['delivery'], 'cart_total' => $this->totals['total']], array_merge(['customer_id' => ($this->user_id === 0 ? 'IS NULL' : $this->user_id), 'sessionid' => session_id(), 'status' => 1], $additional));
         }
         else{
             return $this->emptyBasket();
