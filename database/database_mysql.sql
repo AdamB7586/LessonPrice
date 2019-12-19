@@ -1,5 +1,6 @@
 ALTER TABLE `store_orders`
     ADD `lesson` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0' AFTER `digital`,
+    ADD `transmission` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0' AFTER `lesson`,
     ADD `postcode` VARCHAR(5) NULL DEFAULT NULL AFTER `lesson`,
     ADD `band` VARCHAR(5) NULL DEFAULT NULL AFTER `postcode`;
 

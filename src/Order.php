@@ -80,8 +80,8 @@ class Order extends \ShoppingCart\Order{
      */
     public function getBasket($orderNo = '', $additional = []){
         $basketInfo = parent::getBasket($orderNo, $additional);
-        if($basketInfo['postcode'] !== NULL && empty($this->postcode)){$this->postcode = $basketInfo['postcode'];}
-        if($basketInfo['band'] !== NULL && empty($this->priceband)){$this->priceband = $basketInfo['band'];}
+        if(($basketInfo['postcode'] !== NULL && empty($this->postcode)) || $this->postcode != $basketInfo['postcode']){$this->postcode = $basketInfo['postcode'];}
+        if(($basketInfo['band'] !== NULL && empty($this->priceband)) || $this->priceband != $basketInfo['band']){$this->priceband = $basketInfo['band'];}
         $this->product->setPrice($this->priceband);
         if(is_array($basketInfo['products'])){
             foreach($basketInfo['products'] as $i => $product){
