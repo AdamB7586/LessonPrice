@@ -10,9 +10,9 @@ class Order extends \ShoppingCart\Order{
         
     public $lesson = 0;
     
-    private $postcode;
-    private $priceband;
-    private $transmission = 0;
+    protected $postcode;
+    protected $priceband;
+    protected $transmission = 0;
     
     protected $saleStaff;
     
