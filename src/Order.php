@@ -29,6 +29,14 @@ class Order extends \ShoppingCart\Order{
     }
     
     /**
+     * Returns the currently set postcode
+     * @return string
+     */
+    public function getPostcode() {
+        return $this->postcode;
+    }
+    
+    /**
      * Set the price band
      * @param string $band This should be the price band to display the lesson price
      * @return $this
@@ -41,6 +49,14 @@ class Order extends \ShoppingCart\Order{
         return $this;
     }
     
+    /**
+     * Returns the currently set priceband
+     * @return string
+     */
+    public function getPriceBand() {
+        return $this->priceband;
+    }
+
     /**
      * Sets the sales staff object
      * @param SalesTeam $sales This should be the sales team object
@@ -77,9 +93,9 @@ class Order extends \ShoppingCart\Order{
      * @return array A full array of the order information will be returned 
      */
     protected function buildOrder($orderInfo) {
-        if(($orderInfo['postcode'] !== NULL && empty($this->postcode)) || $this->postcode != $orderInfo['postcode']){$this->postcode = $orderInfo['postcode'];}
-        if(($orderInfo['band'] !== NULL && empty($this->priceband)) || $this->priceband != $orderInfo['band']){$this->priceband = $orderInfo['band'];}
-        $this->product->setPrice($this->priceband);
+        if(($orderInfo['postcode'] !== NULL && empty($this->getPostcode())) || $this->getPostcode() != $orderInfo['postcode']){$this->setPostcode($orderInfo['postcode']);}
+        if(($orderInfo['band'] !== NULL && empty($this->getPriceBand())) || $this->getPriceBand() != $orderInfo['band']){$this->setPriceBand($orderInfo['band']);}
+        $this->product->setPrice($this->getPriceBand());
         return parent::buildOrder($orderInfo);
     }
     
@@ -90,7 +106,7 @@ class Order extends \ShoppingCart\Order{
      */
     protected function createOrder($additional = []) {
         $this->updateTotals();
-        return $this->db->insert($this->config->table_basket, array_merge(['customer_id' => ($this->user_id === 0 ? NULL : $this->user_id), 'order_no' => $this->createOrderID(), 'digital' => $this->has_download, 'lesson' => $this->lesson, 'transmission' => $this->getTransmissionType(), 'postcode' => (!empty($this->postcode) ? $this->postcode : NULL), 'band' => (!empty($this->priceband) ? $this->priceband : NULL), 'subtotal' => $this->totals['subtotal'], 'discount' => $this->totals['discount'], 'total_tax' => $this->totals['tax'], 'delivery' => $this->totals['delivery'], 'cart_total' => $this->totals['total'], 'sessionid' => session_id(), 'ipaddress' => filter_input(INPUT_ENV, 'REMOTE_ADDR', FILTER_VALIDATE_IP)], $additional));
+        return $this->db->insert($this->config->table_basket, array_merge(['customer_id' => ($this->user_id === 0 ? NULL : $this->user_id), 'order_no' => $this->createOrderID(), 'digital' => $this->has_download, 'lesson' => $this->lesson, 'transmission' => $this->getTransmissionType(), 'postcode' => (!empty($this->getPostcode()) ? $this->getPostcode() : NULL), 'band' => (!empty($this->getPriceBand()) ? $this->getPriceBand() : NULL), 'subtotal' => $this->totals['subtotal'], 'discount' => $this->totals['discount'], 'total_tax' => $this->totals['tax'], 'delivery' => $this->totals['delivery'], 'cart_total' => $this->totals['total'], 'sessionid' => session_id(), 'ipaddress' => filter_input(INPUT_ENV, 'REMOTE_ADDR', FILTER_VALIDATE_IP)], $additional));
     }
     
     /**
@@ -101,9 +117,9 @@ class Order extends \ShoppingCart\Order{
      */
     public function getBasket($orderNo = '', $additional = []){
         $basketInfo = parent::getBasket($orderNo, $additional);
-        if(($basketInfo['postcode'] !== NULL && empty($this->postcode)) || $this->postcode != $basketInfo['postcode']){$this->postcode = $basketInfo['postcode'];}
-        if(($basketInfo['band'] !== NULL && empty($this->priceband)) || $this->priceband != $basketInfo['band']){$this->priceband = $basketInfo['band'];}
-        $this->product->setPrice($this->priceband);
+        if(($basketInfo['postcode'] !== NULL && empty($this->getPostcode())) || $this->getPostcode() != $basketInfo['postcode']){$this->setPostcode($basketInfo['postcode']);}
+        if(($basketInfo['band'] !== NULL && empty($this->getPriceBand())) || $this->getPriceBand() != $basketInfo['band']){$this->priceband = $basketInfo['band'];}
+        $this->product->setPrice($this->getPriceBand());
         if(is_array($basketInfo['products'])){
             foreach($basketInfo['products'] as $i => $product){
                 $basketInfo['products'][$i]['price'] = $this->product->getProductPrice($product['product_id']);
@@ -120,7 +136,7 @@ class Order extends \ShoppingCart\Order{
     protected function updateBasket($additional = []) {
         $this->updateTotals();
         if(count($this->products) >= 1){
-            return $this->db->update($this->config->table_basket, ['digital' => $this->has_download, 'lesson' => $this->lesson, 'transmission' => $this->getTransmissionType(),  'postcode' => (!empty($this->postcode) ? $this->postcode : NULL), 'band' => (!empty($this->priceband) ? $this->priceband : NULL), 'subtotal' => $this->totals['subtotal'], 'discount' => $this->totals['discount'], 'total_tax' => $this->totals['tax'], 'delivery' => $this->totals['delivery'], 'cart_total' => $this->totals['total']], array_merge(['customer_id' => ($this->user_id === 0 ? 'IS NULL' : $this->user_id), 'sessionid' => session_id(), 'status' => 1], $additional));
+            return $this->db->update($this->config->table_basket, ['digital' => $this->has_download, 'lesson' => $this->lesson, 'transmission' => $this->getTransmissionType(),  'postcode' => (!empty($this->getPostcode()) ? $this->getPostcode() : NULL), 'band' => (!empty($this->getPriceBand()) ? $this->getPriceBand() : NULL), 'subtotal' => $this->totals['subtotal'], 'discount' => $this->totals['discount'], 'total_tax' => $this->totals['tax'], 'delivery' => $this->totals['delivery'], 'cart_total' => $this->totals['total']], array_merge(['customer_id' => ($this->user_id === 0 ? 'IS NULL' : $this->user_id), 'sessionid' => session_id(), 'status' => 1], $additional));
         }
         else{
             return $this->emptyBasket();
@@ -135,7 +151,7 @@ class Order extends \ShoppingCart\Order{
             foreach($this->products as $product) {
                 if($this->lesson == 0 && $this->product->isProductLesson($product['product_id'])) {
                     $this->lesson = 1;
-                    $this->product->setPrice($this->priceband);
+                    $this->product->setPrice($this->getPriceBand());
                 }
             }
         }
