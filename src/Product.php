@@ -132,6 +132,18 @@ class Product extends \ShoppingCart\Product{
     }
     
     /**
+     * Gets all of the products that are lessons
+     * @return array|false If any lessons exist these will be returned else false will be returned
+     */
+    public function getLessonProducts(){
+        $products = $this->listProducts(true, 0, 100, ['lesson' => 1]);
+        foreach ($products as $i => $product) {
+            $products[$i]['price'] = $this->getProductPrice($product['product_id']);
+        }
+        return $products;
+    }
+    
+    /**
      * Gets the price of any product based on the given product ID
      * @param int $product_id This should be the product id of the item you wish to get the price for
      * @param string $band If the product you are wanting the price for is a lesson then the band needs to be set as the one you are getting the price for
