@@ -136,7 +136,7 @@ class Product extends \ShoppingCart\Product{
      * @return array|false If any lessons exist these will be returned else false will be returned
      */
     public function getLessonProducts(){
-        $products = $this->listProducts(true, 0, 100, ['lesson' => 1]);
+        $products = $this->listProducts(true, 0, 100, ['lesson' => 1, 'lessonrelation' => ['!=' => '']]);
         foreach ($products as $i => $product) {
             $products[$i]['price'] = $this->getProductPrice($product['product_id']);
         }
