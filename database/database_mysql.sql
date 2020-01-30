@@ -46,7 +46,7 @@ INSERT INTO `store_config` (`setting`, `value`) VALUES
 </tr>
 </table><br />
 <hr />
-<p>The postcode area entered by the the client for the lessons to be taken was <strong>%22$s</strong></p>
+<p>The postcode area entered by the the client for the lessons to be taken was <strong>%22$s</strong> for <strong>%24$s</strong> tuition.</p>
 %23$s
 <hr />
 <p><strong>Please arrange to despatch any goods and contact the customer as soon as possible.</strong></p>'),
