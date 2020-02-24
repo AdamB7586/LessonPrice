@@ -117,12 +117,14 @@ class Order extends \ShoppingCart\Order{
      */
     public function getBasket($orderNo = '', $additional = []){
         $basketInfo = parent::getBasket($orderNo, $additional);
-        if(($basketInfo['postcode'] !== NULL && empty($this->getPostcode())) || $this->getPostcode() != $basketInfo['postcode']){$this->setPostcode($basketInfo['postcode']);}
-        if(($basketInfo['band'] !== NULL && empty($this->getPriceBand())) || $this->getPriceBand() != $basketInfo['band']){$this->priceband = $basketInfo['band'];}
-        $this->product->setPrice($this->getPriceBand());
-        if(is_array($basketInfo['products'])){
-            foreach($basketInfo['products'] as $i => $product){
-                $basketInfo['products'][$i]['price'] = $this->product->getProductPrice($product['product_id']);
+        if(is_array($basketInfo)){
+            if(($basketInfo['postcode'] !== NULL && empty($this->getPostcode())) || $this->getPostcode() != $basketInfo['postcode']){$this->setPostcode($basketInfo['postcode']);}
+            if(($basketInfo['band'] !== NULL && empty($this->getPriceBand())) || $this->getPriceBand() != $basketInfo['band']){$this->priceband = $basketInfo['band'];}
+            $this->product->setPrice($this->getPriceBand());
+            if(is_array($basketInfo['products'])){
+                foreach($basketInfo['products'] as $i => $product){
+                    $basketInfo['products'][$i]['price'] = $this->product->getProductPrice($product['product_id']);
+                }
             }
         }
         return $basketInfo;
