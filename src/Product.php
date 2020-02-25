@@ -127,7 +127,7 @@ class Product extends \ShoppingCart\Product{
      */
     public function isProductLesson($product_id) {
         $productInfo = $this->getProductByID($product_id);
-        if($productInfo['lesson']) {return true;}
+        if(isset($productInfo['lesson']) && intval($productInfo['lesson']) === 1) {return true;}
         return false;
     }
     
