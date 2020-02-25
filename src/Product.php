@@ -159,10 +159,7 @@ class Product extends \ShoppingCart\Product{
             }
             return false;
         }
-        else{
-            if(is_numeric($productInfo['sale_price'])) {return Cost::priceUnits($productInfo['sale_price'], $this->decimals);}
-            return Cost::priceUnits($productInfo['price'], $this->decimals);
-        }
+        return Cost::priceUnits((isset($productInfo['sale_price']) && is_numeric($productInfo['sale_price']) ? $productInfo['sale_price'] : $productInfo['price']), $this->decimals);
     }
     
     /**
