@@ -204,10 +204,10 @@ class Product extends \ShoppingCart\Product{
      */
     protected function getCategoryInfo($where) {
         $categoryInfo = parent::getCategoryInfo($where);
-        if($categoryInfo['lessons'] && $this->getNumPrices() > 1) {
+        if(isset($categoryInfo['lessons']) && intval($categoryInfo['lessons']) === 1 && $this->getNumPrices() > 1) {
             $categoryInfo['lessonBox'] = true;
         }
-        if($categoryInfo['lessons'] && $this->getPrice()) {
+        if(isset($categoryInfo['lessons']) && intval($categoryInfo['lessons']) === 1 && $this->getPrice()) {
             $categoryInfo['band'] = $this->getPrice();
         }
         return $categoryInfo;
