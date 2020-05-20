@@ -60,12 +60,12 @@ class Lesson {
      */
     public function getPostcodeBand($postcode, $manual = true){
         $transmission = ($manual !== true ? 'auto' : 'manual');
-        $getPriceband = $this->db->select($this->config->table_postcodes, ['postcode' => strtoupper(smallPostcode($postcode))], [$transmission]);
+        $getPriceband = $this->db->select($this->config->table_postcodes, ['postcode' => strtoupper(smallPostcode($postcode))]);
         if($getPriceband[$transmission] && $getPriceband[$transmission] != NULL){
             return $getPriceband[$transmission];
         }
-        else{
-            return $this->getPostcodeBand($postcode);
+        elseif($transmission === 'auto' && $getPriceband){
+            return $getPriceband['manual'];
         }
         return false;
     }
