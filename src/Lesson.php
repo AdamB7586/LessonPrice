@@ -97,7 +97,10 @@ class Lesson {
         if($band[$transmission] != NULL){
             return $this->getPriceBandInfo($band[$transmission]);
         }
-        return $this->selectPriceband($postcode);
+        elseif($transmission === 'auto'){
+            return $this->selectPriceband($postcode);
+        }
+        return false;
     }
     
     /**
