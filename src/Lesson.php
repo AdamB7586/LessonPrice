@@ -12,6 +12,8 @@ class Lesson {
     public $postcode;
     public $band;
     
+    protected $productInfo;
+    
     /**
      * Constructor
      */
@@ -112,7 +114,7 @@ class Lesson {
      */
     public function lessonPrice($relation, $band, $lessoninfo = false){
         if(!isset($this->band)){$this->getPriceBandInfo($band);}
-        if(!is_array($lessoninfo)){$lessoninfo = $this->db->select($this->config->table_priceband_info, ['course' => $relation]);}
+        if(!is_array($lessoninfo)){$lessoninfo = $this->getProductInfo($relation);}
         
         $fee = 0;
         if($lessoninfo['test']){$fee = $fee + $this->band['testfee'];}
@@ -182,6 +184,17 @@ class Lesson {
         return false;
     }
     
+    protected function getProductInfo($course = false){
+        if(is_array($this->productInfo)){
+            return ($course === false ? $this->productInfo : $this->productInfo[$course]);
+        }
+        $priceband = $this->db->selectAll($this->config->table_priceband_info);
+        foreach($priceband as $info){
+            $this->productInfo[$info['course']] = $info;
+        }
+        return $this->productInfo;
+    }
+    
     /**
      * Returns a list of all of the lessons and prices for a given band
      * @param string $band This should be the price band
@@ -189,7 +202,7 @@ class Lesson {
      */
     public function listLessonPrices($band){
         $item = [];
-        foreach($this->db->selectAll($this->config->table_priceband_info) as $lesson){
+        foreach($this->getProductInfo() as $lesson){
             $item[$lesson['course']] = $this->lessonPrice($lesson['course'], $band, $lesson);
             $item[$lesson['course']]['info'] = $this->getLessonProductInformation($lesson['course']);
         }
