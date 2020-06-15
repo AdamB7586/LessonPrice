@@ -192,7 +192,7 @@ class Lesson {
         foreach($priceband as $info){
             $this->productInfo[$info['course']] = $info;
         }
-        return $this->productInfo;
+        return ($course === false ? $this->productInfo : $this->productInfo[$course]);
     }
     
     /**
