@@ -209,4 +209,15 @@ class Order extends \ShoppingCart\Order{
     public function sendOfficeEmail($orderInfo, $emailType, $variables = array()) {
         return false;
     }
+    
+    /**
+     * Returns the email types and variables to include 
+     * @param array $orderInfo This should be the order information
+     * @return array Returns the email types and variables to include
+     */
+    protected function orderEmailTypes($orderInfo){
+        $emails = parent::orderEmailTypes($orderInfo);
+        if($orderInfo['lesson'] != 0){unset($emails['2_office']);}
+        return $emails;
+    }
 }
