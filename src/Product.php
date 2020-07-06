@@ -143,6 +143,22 @@ class Product extends \ShoppingCart\Product{
     }
     
     /**
+     * Returns an array of active products
+     * @param boolean $active If you only want to retrieve active products set this to true else for all products should be true 
+     * @param int $start The start location for the records in the database used for pagination
+     * @param int $limit The maximum number of results to return in the array
+     * @param array $where Addition where fields
+     * @return array|false If any products exists they will be returned as an array else will return false
+     */
+    public function listProducts($active = true, $start = 0, $limit = 50, $where = []) {
+        $products = parent::listProducts($active, $start, $limit, $where);
+        foreach ($products as $i => $product) {
+            if($product['lesson'] == 1 && !$product['price']){$products[$i]['price'] = $this->getProductPrice($product['product_id']);}
+        }
+        return $products;
+    }
+    
+    /**
      * Gets the price of any product based on the given product ID
      * @param int $product_id This should be the product id of the item you wish to get the price for
      * @param string $band If the product you are wanting the price for is a lesson then the band needs to be set as the one you are getting the price for
