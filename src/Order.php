@@ -170,13 +170,7 @@ class Order extends \ShoppingCart\Order{
         $status = parent::changeOrderStatus($order_id, $new_status, $setPaidDate, $sendEmail);
         $orderInfo = $this->getOrderByID($order_id);
         if(intval($new_status) === 2 && $sendEmail === true && $orderInfo['lesson'] != 0 && is_object($this->saleStaff)){
-            if($orderInfo['staffid'] >= 1){
-                $staffInfo = $this->saleStaff->getStaffInfoByID($orderInfo['staffid']);
-            }
-            else{
-                $staffInfo = $this->saleStaff->getActiveStaff();
-                $this->db->update($this->config->table_basket, ['staffid' => $staffInfo['id']], ['order_id' => $orderInfo['order_id']], 1);
-            }
+            $staffInfo = $this->getStaffInfo($orderInfo);
             
             foreach($this->lessonPurchaseEmails($orderInfo, $staffInfo) as $email){
                 Mailer::sendEmail($email['email_to'], $this->config->{"email_".strtolower($email['email'])."_subject"}, Html2Text::convert(vsprintf($this->config->{"email_".strtolower($email['email'])."_body"}, $email['variables']), ['ignore_errors' => true]), Mailer::htmlWrapper($this->config, vsprintf($this->config->{"email_".strtolower($email['email'])."_body"}, $email['variables']), $this->config->{"email_".strtolower($email['email'])."_subject"}), $email['email_from'], $email['email_from_name']);
@@ -185,6 +179,23 @@ class Order extends \ShoppingCart\Order{
         return $status;
     }
     
+    /**
+     * Get the staff information for the staff member to assign
+     * @param array $orderInfo This should be the order information
+     * @return array Returns the staff information
+     */
+    protected function getStaffInfo($orderInfo){
+        if($orderInfo['staffid'] >= 1){
+            $staffInfo = $this->saleStaff->getStaffInfoByID($orderInfo['staffid']);
+        }
+        else{
+            $staffInfo = $this->saleStaff->getActiveStaff();
+            $this->db->update($this->config->table_basket, ['staffid' => $staffInfo['id']], ['order_id' => $orderInfo['order_id']], 1);
+        }
+        return $staffInfo;
+    }
+
+
     /**
      * Gets all of the emails to send as part of a lesson purchase
      * @param array $orderInfo This is the order information
