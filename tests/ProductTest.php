@@ -6,17 +6,19 @@ use LessonPrice\Product;
 use DBAL\Database;
 use Configuration\Config;
 
-class ProductTest extends TestCase{
+class ProductTest extends TestCase
+{
     
-    public function setUp(): void {
-        
+    public function setUp(): void
+    {
     }
     
-    public function tearDown(): void {
-        
+    public function tearDown(): void
+    {
     }
     
-    public function testExample() {
+    public function testExample()
+    {
         $this->markTestIncomplete();
     }
 }
