@@ -4,8 +4,8 @@
     "type": "library",
     "license": "proprietary",
     "require": {
-        "adamb/salesstaff": "^1.*",
-        "adamb/shopping-cart": "^1.*"
+        "adamb/salesstaff": "1.*",
+        "adamb/shopping-cart": "1.*"
     },
     "require-dev": {
         "phpunit/phpunit": "*"
