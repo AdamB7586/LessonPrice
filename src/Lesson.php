@@ -184,10 +184,10 @@ class Lesson
         $sql = '';
         $postcodes = [];
         for ($i = 0; $i <= 9; $i++) {
-            $sql.= ($i > 0 ? " OR " : "")."`postcode` LIKE ?";
+            $sql.= ($i > 0 ? " OR " : "")."`{$this->config->table_postcodes}`.`postcode` LIKE ?";
             $postcodes[] = $area.$i.'%';
         }
-        return $this->db->query("SELECT * FROM `{$this->config->table_postcodes}` WHERE {$sql} ORDER BY `postcode` ASC;", $postcodes);
+        return $this->db->query("SELECT `{$this->config->table_postcodes}`.*, `{$this->config->table_priceband}`.`onehour` as `price` FROM `{$this->config->table_postcodes}`, `{$this->config->table_priceband}` WHERE {$sql} AND `{$this->config->table_priceband}`.`band` = `{$this->config->table_postcodes}`.`manual` ORDER BY `{$this->config->table_postcodes}`.`postcode` ASC", $postcodes);
     }
     
     /**
